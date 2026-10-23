@@ -7972,8 +7972,24 @@ Ao final, as duas filas originais devem continuar com <strong>os mesmos elemento
           : Date.now();
         return local + off;
       }
+      /* código de atendimento (SAE): remove a trava de prazo. Guardado só como hash. */
+      const HASH_ATENDIMENTO =
+        "12a9cf320ce847900eccfba8ad2f46da5e9128f9dacb2309e2720979b6d2089e";
+      const codigoValido = (c) =>
+        UI.sha256(
+          "cesupa-ed|atendimento|" +
+            String(c || "")
+              .trim()
+              .toLowerCase(),
+        ) === HASH_ATENDIMENTO;
+      const semPrazo = () => !!(S && S.semPrazo);
       function restante() {
-        return Math.max(0, PRAZO - agora());
+        return semPrazo() ? Infinity : Math.max(0, PRAZO - agora());
+      }
+      function decorrido() {
+        return S
+          ? Math.max(Date.now(), S.inicioMs + S.decorrido) - S.inicioMs
+          : 0;
       }
       function fmtClock(ms) {
         const s = Math.ceil(ms / 1000);
@@ -8106,21 +8122,18 @@ Ao final, as duas filas originais devem continuar com <strong>os mesmos elemento
         <ul class="qmini">${Q.map((q) => `<li><span class="n">${q.numero}</span><span>${esc(q.titulo)}</span><span class="tp">${tipoLabel(q)} · ${UI.fmtNota(q.pontos)} pt</span></li>`).join("")}</ul>
       </section>
       <section>
-        ${
-          encerrado
-            ? `<div class="warnbox" style="font-size:1rem"><strong>O prazo desta prova terminou</strong> em ${prazoTxt()}.</div>`
-            : `
+        ${encerrado ? `<div class="warnbox" style="font-size:.95rem"><strong>O prazo desta prova terminou</strong> em ${prazoTxt()}. Somente alunos com código de atendimento podem iniciar.</div>` : ""}
         <form id="fstart" autocomplete="off">
           <label class="field"><span>Nome completo</span><input name="nome" required minlength="5"></label>
+          <label class="field"><span>Código de atendimento <em style="font-weight:500;color:var(--faint)">(opcional — deixe em branco se não tiver)</em></span><input name="codigo" autocomplete="off" spellcheck="false" ${encerrado ? "required" : ""}></label>
           <label class="field"><span>Matrícula</span><input name="matricula" required></label>
           <label class="field"><span>Turma</span><input name="turma" value="${esc(CONFIG.turma)}"></label>
           <label class="check"><input type="checkbox" name="ok" required><span>Declaro que farei esta avaliação individualmente, sem consultar colegas, materiais ou ferramentas não autorizadas.</span></label>
           ${UI.storage.ok ? "" : '<div class="warnbox">Este navegador não permite o salvamento automático. Não feche nem recarregue a página durante a prova.</div>'}
           <div class="ferr" id="ferr"></div>
           <button class="btn primary lg" type="submit" style="width:100%;justify-content:center">Iniciar prova</button>
-          <p class="small" style="margin-top:12px">Prazo final: <strong>${prazoTxt()}</strong> · faltam <span id="falta">${fmtClock(restante())}</span>.</p>
-        </form>`
-        }
+          <p class="small" style="margin-top:12px">Prazo final: <strong>${prazoTxt()}</strong> · <span id="falta">${encerrado ? "encerrado" : "faltam " + fmtClock(restante())}</span>.</p>
+        </form>
         <div class="netline" id="net">${ENVIO_ON ? '<span class="dot wait"></span>Verificando conexão com o servidor de envio…' : '<span class="dot"></span>Envio online não configurado: ao final, entregue o arquivo de respostas.'}</div>
       </section>
     </div>
@@ -8141,11 +8154,8 @@ Ao final, as duas filas originais devem continuar com <strong>os mesmos elemento
             clearInterval(iv);
             return;
           }
-          el.textContent = fmtClock(restante());
-          if (restante() <= 0) {
-            clearInterval(iv);
-            renderStart();
-          }
+          const r = restante();
+          el.textContent = r > 0 ? "faltam " + fmtClock(r) : "encerrado";
         }, 1000);
         f.onsubmit = (e) => {
           e.preventDefault();
@@ -8161,20 +8171,27 @@ Ao final, as duas filas originais devem continuar com <strong>os mesmos elemento
               "Informe uma matrícula válida (somente letras e números).";
             return;
           }
-          if (restante() <= 0) {
-            renderStart();
+          const codigo = f.codigo.value.trim();
+          const sae = codigo !== "" && codigoValido(codigo);
+          if (codigo !== "" && !sae) {
+            $("#ferr").textContent =
+              "Código de atendimento inválido. Se você não tem código, deixe o campo em branco.";
+            return;
+          }
+          if (!sae && restante() <= 0) {
+            $("#ferr").textContent =
+              "O prazo desta prova terminou. Somente alunos com código de atendimento podem iniciar.";
             return;
           }
           clearInterval(iv);
-          iniciar({
-            nome,
-            matricula,
-            turma: f.turma.value.trim() || CONFIG.turma,
-          });
+          iniciar(
+            { nome, matricula, turma: f.turma.value.trim() || CONFIG.turma },
+            sae,
+          );
         };
       }
 
-      function iniciar(aluno) {
+      function iniciar(aluno, sae) {
         const now = Date.now();
         const ordem = {};
         for (const q of Q)
@@ -8212,8 +8229,14 @@ Ao final, as duas filas originais devem continuar com <strong>os mesmos elemento
           revisar: {},
           eventos: [],
           finalizada: false,
+          semPrazo: !!sae,
         };
         log("inicio", navigator.userAgent);
+        if (sae)
+          log(
+            "atendimento-sae",
+            "código de atendimento válido: sem trava de prazo",
+          );
         if (offsetServidor)
           log(
             "relogio-ajustado",
@@ -8232,7 +8255,7 @@ Ao final, as duas filas originais devem continuar com <strong>os mesmos elemento
     <div style="padding:24px 30px 28px">
       <p>Existe uma prova em andamento neste computador:</p>
       <p style="font-size:1.05rem"><strong>${esc(saved.aluno.nome)}</strong> · matrícula ${esc(saved.aluno.matricula)}</p>
-      <p class="small">Iniciada em ${UI.fmtDataHora(saved.inicioMs)}. Prazo final: ${prazoTxt()}.</p>
+      <p class="small">Iniciada em ${UI.fmtDataHora(saved.inicioMs)}. ${saved.semPrazo ? "Atendimento SAE: sem limite de prazo." : "Prazo final: " + prazoTxt() + "."}</p>
       <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap">
         <button class="btn primary lg" id="bcont">Continuar esta prova</button>
         <button class="btn ghost" id="bother">Não sou eu</button>
@@ -8278,7 +8301,7 @@ Ao final, as duas filas originais devem continuar com <strong>os mesmos elemento
   <header class="top">
     <div class="brand"><div class="logobox"><img src="${UI.LOGO_COMPACT}" alt="CESUPA"></div><div><div class="t1">${esc(CONFIG.disciplina)}</div><div class="t2">Avaliação · Turma ${esc(S.aluno.turma)}</div></div></div>
     <div class="who"><b>${esc(S.aluno.nome)}</b>Matrícula ${esc(S.aluno.matricula)}</div>
-    <div class="timerbox"><span class="timer" id="timer" title="Tempo restante até o prazo">--:--</span><small>prazo ${prazoHora()}</small></div>
+    <div class="timerbox"><span class="timer" id="timer" title="${semPrazo() ? "Tempo decorrido" : "Tempo restante até o prazo"}">--:--</span><small>${semPrazo() ? "SAE · sem limite de prazo" : "prazo " + prazoHora()}</small></div>
     <div class="saved" id="saved">Salvo</div>
     <button class="btn accent" id="bfin">Finalizar prova</button>
   </header>
@@ -8701,6 +8724,13 @@ Ao final, as duas filas originais devem continuar com <strong>os mesmos elemento
               "relogio-irregular",
               `diferença de ${Math.round((dw - dp) / 1000)} s`,
             );
+          if (semPrazo()) {
+            const t0 = $("#timer");
+            if (t0) t0.textContent = fmtClock(decorrido());
+            if (++n % 5 === 0) save(true);
+            if (n % 600 === 0) pingServidor();
+            return;
+          }
           const rem = restante();
           const t = $("#timer");
           if (t) {
@@ -8806,6 +8836,7 @@ Ao final, as duas filas originais devem continuar com <strong>os mesmos elemento
           disciplina: CONFIG.disciplina,
           professor: CONFIG.professor,
           aluno: S.aluno,
+          atendimento: S.semPrazo ? "SAE" : null,
           inicio: new Date(S.inicioMs + (S.offset || 0)).toISOString(),
           fim: new Date(fim).toISOString(),
           prazo: new Date(PRAZO).toISOString(),
