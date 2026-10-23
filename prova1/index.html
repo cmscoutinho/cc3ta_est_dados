@@ -589,6 +589,56 @@
         color: var(--muted);
         font-size: 0.95rem;
       }
+      .landing {
+        max-width: 640px;
+      }
+      .landing-body {
+        padding: 28px 30px 30px;
+      }
+      .landing-body label {
+        display: block;
+        font-size: 1.02rem;
+        margin-bottom: 12px;
+        color: #2b3a48;
+      }
+      .tipo-row {
+        display: flex;
+        gap: 12px;
+        align-items: stretch;
+      }
+      .tipo-row input {
+        width: 120px;
+        text-align: center;
+        font-size: 2.2rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        border: 2px solid var(--line);
+        border-radius: 12px;
+        padding: 0.15em 0.3em;
+        color: var(--navy);
+        background: #fff;
+        text-transform: uppercase;
+      }
+      .tipo-row input:focus {
+        outline: 3px solid rgba(10, 127, 181, 0.22);
+        border-color: var(--blue);
+      }
+      .tipo-row .btn {
+        flex: 1;
+        justify-content: center;
+      }
+      .tipo-badge {
+        display: inline-block;
+        vertical-align: middle;
+        font-size: 0.9rem;
+        font-weight: 800;
+        background: var(--accent);
+        color: #2a1a00;
+        padding: 0.15em 0.6em;
+        border-radius: 8px;
+        margin-left: 6px;
+        letter-spacing: 0.02em;
+      }
       .card-body {
         display: grid;
         grid-template-columns: 1.1fr 1fr;
@@ -6723,7 +6773,7 @@
           const r = run(
             src,
             Object.assign(
-              { entryClass: "__Teste", maxSteps: 20000000 },
+              { entryClass: "__Teste", maxSteps: 2000000 },
               opts || {},
             ),
           );
@@ -7402,227 +7452,8 @@
       })(window);
     </script>
     <script>
-      /* Enunciados da prova (sem respostas). Compartilhado pela prova e pela correção. */
-      (function (root) {
-        const esc = (s) =>
-          s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        const code = (s) =>
-          `<pre class="code-block" data-java>${esc(s.replace(/^\n/, "").replace(/\s+$/, ""))}</pre>`;
-
-        /* ---------------- classes fornecidas (completas) ---------------- */
-        const CLASSE_NO = `class No {
-    int valor;
-    No proximo;
-
-    No(int valor) {
-        this.valor = valor;
-        this.proximo = null;
-    }
-}`;
-
-        const CLASSE_PILHA = `class PilhaLista {
-    private No topo;
-    private int tamanho;
-
-    public PilhaLista() {
-        topo = null;
-        tamanho = 0;
-    }
-
-    public void push(int valor) {
-        No novo = new No(valor);
-        novo.proximo = topo;
-        topo = novo;
-        tamanho++;
-    }
-
-    public int pop() {
-        if (isEmpty()) {
-            throw new IllegalStateException("Erro! Pilha vazia.");
-        }
-        int valor = topo.valor;
-        topo = topo.proximo;
-        tamanho--;
-        return valor;
-    }
-
-    public int peek() {
-        if (isEmpty()) {
-            throw new IllegalStateException("Erro! Pilha vazia.");
-        }
-        return topo.valor;
-    }
-
-    public boolean isEmpty() {
-        return topo == null;
-    }
-
-    public int size() {
-        return tamanho;
-    }
-
-    // Mostra do topo para a base. Exemplo: topo [40, 30, 10] base
-    public String toString() {
-        StringBuilder sb = new StringBuilder("topo [");
-        No atual = topo;
-        while (atual != null) {
-            sb.append(atual.valor);
-            if (atual.proximo != null) sb.append(", ");
-            atual = atual.proximo;
-        }
-        return sb.append("] base").toString();
-    }
-}`;
-
-        const CLASSE_FILA = `class FilaLista {
-    private No inicio;
-    private No fim;
-    private int tamanho;
-
-    public FilaLista() {
-        inicio = null;
-        fim = null;
-        tamanho = 0;
-    }
-
-    public void enqueue(int valor) {
-        No novo = new No(valor);
-        if (isEmpty()) {
-            inicio = novo;
-            fim = novo;
-        } else {
-            fim.proximo = novo;
-            fim = novo;
-        }
-        tamanho++;
-    }
-
-    public int dequeue() {
-        if (isEmpty()) {
-            throw new IllegalStateException("Erro! Fila vazia.");
-        }
-        int valor = inicio.valor;
-        inicio = inicio.proximo;
-        tamanho--;
-        if (inicio == null) {
-            fim = null;
-        }
-        return valor;
-    }
-
-    public int peek() {
-        if (isEmpty()) {
-            throw new IllegalStateException("Erro! Fila vazia.");
-        }
-        return inicio.valor;
-    }
-
-    public boolean isEmpty() {
-        return inicio == null;
-    }
-
-    public int size() {
-        return tamanho;
-    }
-
-    // Mostra do início para o fim. Exemplo: inicio [1, 2, 3] fim
-    public String toString() {
-        StringBuilder sb = new StringBuilder("inicio [");
-        No atual = inicio;
-        while (atual != null) {
-            sb.append(atual.valor);
-            if (atual.proximo != null) sb.append(", ");
-            atual = atual.proximo;
-        }
-        return sb.append("] fim").toString();
-    }
-}`;
-
-        const Q4_TEMPLATE = `// Questão 4 — Exercício 24 da lista: removerValor(PilhaLista p, int valor)
-// As classes No e PilhaLista abaixo estão COMPLETAS e prontas para uso: não as altere.
-// Implemente apenas o método removerValor na classe Questao4.
-// NÃO use classes de java.util.
-
-${CLASSE_NO}
-
-${CLASSE_PILHA}
-
-class Questao4 {
-    public static void removerValor(PilhaLista p, int valor) {
-        // TODO: use uma pilha auxiliar (PilhaLista) para reconstruir p
-        //       sem as ocorrências de valor, mantendo a ordem dos demais.
-        //       (apague a linha abaixo ao implementar)
-        throw new UnsupportedOperationException("removerValor ainda não implementado");
-    }
-}
-
-public class Main {
-    public static void main(String[] args) {
-        PilhaLista p = new PilhaLista();
-        p.push(10);
-        p.push(20);
-        p.push(30);
-        p.push(20);
-        p.push(40);                                 // 40 está no topo
-
-        System.out.println("Antes:   " + p);        // topo [40, 20, 30, 20, 10] base
-        Questao4.removerValor(p, 20);
-        System.out.println("Depois:  " + p);        // esperado: topo [40, 30, 10] base
-        System.out.println("Tamanho: " + p.size()); // esperado: 3
-    }
-}
-`;
-
-        const Q5_TEMPLATE = `// Questão 5 — Exercício 29 da lista: concatenar(FilaLista a, FilaLista b)
-// As classes No e FilaLista abaixo estão COMPLETAS e prontas para uso: não as altere.
-// Implemente apenas o método concatenar na classe Questao5.
-// NÃO use classes de java.util.
-
-${CLASSE_NO}
-
-${CLASSE_FILA}
-
-class Questao5 {
-    public static FilaLista concatenar(FilaLista a, FilaLista b) {
-        // TODO: use apenas size(), enqueue(), dequeue() e isEmpty().
-        //       a e b devem terminar com os mesmos elementos, na mesma ordem.
-        //       (apague a linha abaixo ao implementar)
-        throw new UnsupportedOperationException("concatenar ainda não implementado");
-    }
-}
-
-public class Main {
-    public static void main(String[] args) {
-        FilaLista a = new FilaLista();
-        a.enqueue(1);
-        a.enqueue(2);
-        a.enqueue(3);
-
-        FilaLista b = new FilaLista();
-        b.enqueue(4);
-        b.enqueue(5);
-
-        FilaLista c = Questao5.concatenar(a, b);
-        System.out.println("c = " + c);   // esperado: inicio [1, 2, 3, 4, 5] fim
-        System.out.println("a = " + a);   // esperado: inicio [1, 2, 3] fim
-        System.out.println("b = " + b);   // esperado: inicio [4, 5] fim
-    }
-}
-`;
-
-        /* helpers para montar códigos de teste */
-        const pilha = (vals, nome = "p") =>
-          `PilhaLista ${nome} = new PilhaLista();\n` +
-          (vals.length
-            ? `int[] ${nome}Valores = {${vals.join(", ")}};\nfor (int x : ${nome}Valores) ${nome}.push(x);\n`
-            : "");
-        const fila = (vals, nome) =>
-          `FilaLista ${nome} = new FilaLista();\n` +
-          (vals.length
-            ? `int[] ${nome}Valores = {${vals.join(", ")}};\nfor (int x : ${nome}Valores) ${nome}.enqueue(x);\n`
-            : "");
-
-        const QUESTOES = [
+      window.PROVAS_TODAS = {
+        A: [
           {
             id: "q1",
             numero: 1,
@@ -7630,36 +7461,14 @@ public class Main {
             titulo: "Pilha e fila trabalhando juntas",
             tema: "Pilhas e filas",
             pontos: 1.5,
-            enunciado: `
-<p>Considere as classes <code>Pilha</code> e <code>Fila</code> de inteiros, ambas implementadas com nós e funcionando corretamente:
-<code>Pilha</code> oferece <code>push</code>, <code>pop</code>, <code>peek</code> e <code>isEmpty</code>;
-<code>Fila</code> oferece <code>enqueue</code>, <code>dequeue</code> e <code>isEmpty</code>.</p>
-${code(`
-Pilha p = new Pilha();
-Fila  f = new Fila();
-int[] dados = {4, 11, 6, 15, 2, 9};
-
-for (int x : dados) {
-    if (x > 5) p.push(x);
-    else       f.enqueue(x);
-}
-
-f.enqueue(p.pop());
-p.push(f.dequeue() * 10);
-f.enqueue(p.pop() + p.peek());
-
-while (!f.isEmpty()) System.out.print(f.dequeue() + " ");
-System.out.print("| ");
-while (!p.isEmpty()) System.out.print(p.pop() + " ");
-`)}
-<p>Lembre que, em Java, os operandos de <code>+</code> são avaliados da esquerda para a direita.
-<strong>Qual é a saída impressa pelo trecho?</strong></p>`,
+            enunciado:
+              '\n<p>Considere as classes <code>Pilha<\/code> e <code>Fila<\/code> de inteiros, ambas implementadas com nós e funcionando corretamente:\n<code>Pilha<\/code> oferece <code>push<\/code>, <code>pop<\/code>, <code>peek<\/code> e <code>isEmpty<\/code>;\n<code>Fila<\/code> oferece <code>enqueue<\/code>, <code>dequeue<\/code> e <code>isEmpty<\/code>.<\/p>\n<pre class="code-block" data-java>Pilha p = new Pilha();\nFila  f = new Fila();\nint[] dados = {4, 11, 6, 15, 2, 9};\n\nfor (int x : dados) {\n    if (x &gt; 5) p.push(x);\n    else       f.enqueue(x);\n}\n\nf.enqueue(p.pop());\np.push(f.dequeue() * 10);\nf.enqueue(p.pop() + p.peek());\n\nwhile (!f.isEmpty()) System.out.print(f.dequeue() + " ");\nSystem.out.print("| ");\nwhile (!p.isEmpty()) System.out.print(p.pop() + " ");<\/pre>\n<p>Lembre que, em Java, os operandos de <code>+<\/code> são avaliados da esquerda para a direita.\n<strong>Qual é a saída impressa pelo trecho?<\/strong><\/p>',
             alternativas: [
-              { id: "o1", html: "<code>55 9 2 | 11 6 15</code>" },
-              { id: "o2", html: "<code>2 9 55 | 11 6 15</code>" },
-              { id: "o3", html: "<code>2 9 55 | 15 6 11</code>" },
-              { id: "o4", html: "<code>4 2 9 55 | 15 6 11</code>" },
-              { id: "o5", html: "<code>2 9 55 | 40 15 6 11</code>" },
+              { id: "o1", html: "<code>55 9 2 | 11 6 15<\/code>" },
+              { id: "o2", html: "<code>2 9 55 | 11 6 15<\/code>" },
+              { id: "o3", html: "<code>2 9 55 | 15 6 11<\/code>" },
+              { id: "o4", html: "<code>4 2 9 55 | 15 6 11<\/code>" },
+              { id: "o5", html: "<code>2 9 55 | 40 15 6 11<\/code>" },
             ],
           },
           {
@@ -7669,45 +7478,28 @@ while (!p.isEmpty()) System.out.print(p.pop() + " ");
             titulo: "Remoção em lista duplamente encadeada",
             tema: "Listas encadeadas",
             pontos: 1.5,
-            enunciado: `
-<p>Em uma lista duplamente encadeada, cada nó possui as referências <code>anterior</code> e <code>proximo</code>:</p>
-${code(`
-class NoDuplo {
-    String dado;
-    NoDuplo anterior;
-    NoDuplo proximo;
-}
-`)}
-<p>A variável <code>atual</code> aponta para um nó que <strong>não é o primeiro nem o último</strong> da lista.
-Qual alternativa remove corretamente o nó <code>atual</code>, deixando a lista consistente para navegação <strong>nos dois sentidos</strong>?</p>`,
+            enunciado:
+              '\n<p>Em uma lista duplamente encadeada, cada nó possui as referências <code>anterior<\/code> e <code>proximo<\/code>:<\/p>\n<pre class="code-block" data-java>class NoDuplo {\n    String dado;\n    NoDuplo anterior;\n    NoDuplo proximo;\n}<\/pre>\n<p>A variável <code>atual<\/code> aponta para um nó que <strong>não é o primeiro nem o último<\/strong> da lista.\nQual alternativa remove corretamente o nó <code>atual<\/code>, deixando a lista consistente para navegação <strong>nos dois sentidos<\/strong>?<\/p>',
             alternativas: [
               {
                 id: "o1",
-                html: code(
-                  `atual.anterior.proximo = atual.anterior;\natual.proximo.anterior = atual.proximo;`,
-                ),
+                html: '<pre class="code-block" data-java>atual.anterior.proximo = atual.anterior;\natual.proximo.anterior = atual.proximo;<\/pre>',
               },
               {
                 id: "o2",
-                html: code(
-                  `atual.anterior = atual.proximo;\natual.proximo = atual.anterior;`,
-                ),
+                html: '<pre class="code-block" data-java>atual.anterior = atual.proximo;\natual.proximo = atual.anterior;<\/pre>',
               },
               {
                 id: "o3",
-                html: code(`atual.anterior = null;\natual.proximo = null;`),
+                html: '<pre class="code-block" data-java>atual.anterior = null;\natual.proximo = null;<\/pre>',
               },
               {
                 id: "o4",
-                html: code(
-                  `atual.anterior.proximo = atual.proximo;\natual.proximo.anterior = atual.anterior;`,
-                ),
+                html: '<pre class="code-block" data-java>atual.anterior.proximo = atual.proximo;\natual.proximo.anterior = atual.anterior;<\/pre>',
               },
               {
                 id: "o5",
-                html: code(
-                  `atual.anterior.proximo = atual.proximo;\natual.proximo.anterior = atual;`,
-                ),
+                html: '<pre class="code-block" data-java>atual.anterior.proximo = atual.proximo;\natual.proximo.anterior = atual;<\/pre>',
               },
             ],
           },
@@ -7718,15 +7510,8 @@ Qual alternativa remove corretamente o nó <code>atual</code>, deixando a lista 
             titulo: "Escolhendo estruturas para um player de música",
             tema: "Listas, pilhas e filas",
             pontos: 2,
-            enunciado: `
-<p>Uma equipe está desenvolvendo um player de músicas com as seguintes funcionalidades:</p>
-<ol type="a">
-  <li><strong>Tocar a seguir:</strong> o usuário vai adicionando músicas, que devem tocar exatamente na ordem em que foram adicionadas.</li>
-  <li><strong>Navegar na playlist:</strong> os botões <em>anterior</em> e <em>próxima</em> mudam a música atual, e o usuário pode alternar entre os dois sentidos quantas vezes quiser.</li>
-  <li><strong>Desfazer remoção:</strong> o usuário remove músicas da playlist e pode desfazer as remoções; cada “desfazer” restaura a remoção <em>mais recente</em> que ainda não foi desfeita.</li>
-</ol>
-<p>Para cada funcionalidade (a, b e c), indique a estrutura de dados mais adequada entre <strong>pilha</strong>, <strong>fila</strong>, <strong>lista simplesmente encadeada</strong> e <strong>lista duplamente encadeada</strong>, justificando com base no princípio de funcionamento da estrutura e nas operações envolvidas.</p>
-<p>Por fim, <strong>(d)</strong> explique por que um <strong>array (vetor)</strong> seria uma escolha pior para guardar a playlist do item (b), considerando que o usuário frequentemente insere e remove músicas no meio dela.</p>`,
+            enunciado:
+              '\n<p>Uma equipe está desenvolvendo um player de músicas com as seguintes funcionalidades:<\/p>\n<ol type="a">\n  <li><strong>Tocar a seguir:<\/strong> o usuário vai adicionando músicas, que devem tocar exatamente na ordem em que foram adicionadas.<\/li>\n  <li><strong>Navegar na playlist:<\/strong> os botões <em>anterior<\/em> e <em>próxima<\/em> mudam a música atual, e o usuário pode alternar entre os dois sentidos quantas vezes quiser.<\/li>\n  <li><strong>Desfazer remoção:<\/strong> o usuário remove músicas da playlist e pode desfazer as remoções; cada “desfazer” restaura a remoção <em>mais recente<\/em> que ainda não foi desfeita.<\/li>\n<\/ol>\n<p>Para cada funcionalidade (a, b e c), indique a estrutura de dados mais adequada entre <strong>pilha<\/strong>, <strong>fila<\/strong>, <strong>lista simplesmente encadeada<\/strong> e <strong>lista duplamente encadeada<\/strong>, justificando com base no princípio de funcionamento da estrutura e nas operações envolvidas.<\/p>\n<p>Por fim, <strong>(d)<\/strong> explique por que um <strong>array (vetor)<\/strong> seria uma escolha pior para guardar a playlist do item (b), considerando que o usuário frequentemente insere e remove músicas no meio dela.<\/p>',
             placeholder:
               "Organize sua resposta em itens: (a) ... (b) ... (c) ... (d) ...",
           },
@@ -7737,70 +7522,55 @@ Qual alternativa remove corretamente o nó <code>atual</code>, deixando a lista 
             titulo: "Remover um valor da pilha",
             tema: "Pilhas · Exercício 24",
             pontos: 2.5,
-            enunciado: `
-<p>Implemente um método <code>void removerValor(PilhaLista p, int valor)</code> que retire da pilha <strong>todas as ocorrências</strong> do <code>valor</code> informado.
-Os demais elementos devem continuar na <strong>mesma ordem relativa</strong> que possuíam antes da operação.</p>
-<ul>
-  <li>Use uma <strong>pilha auxiliar</strong> (outra <code>PilhaLista</code>) para reconstruir a pilha sem os valores removidos.</li>
-  <li>As classes <code>No</code> e <code>PilhaLista</code> já estão completas no editor. Use somente as operações públicas: <code>push</code>, <code>pop</code>, <code>peek</code>, <code>isEmpty</code> e <code>size</code>. Não altere essas classes.</li>
-  <li>Se o valor não existir, ou se a pilha estiver vazia, a pilha deve ficar como estava (sem lançar exceção).</li>
-</ul>
-<table class="exemplos">
-  <tr><th>Pilha antes (topo → base)</th><th>Chamada</th><th>Pilha depois (topo → base)</th></tr>
-  <tr><td><code>40, 20, 30, 20, 10</code></td><td><code>removerValor(p, 20)</code></td><td><code>40, 30, 10</code></td></tr>
-  <tr><td><code>3, 2, 1</code></td><td><code>removerValor(p, 9)</code></td><td><code>3, 2, 1</code></td></tr>
-  <tr><td><code>7, 7, 7</code></td><td><code>removerValor(p, 7)</code></td><td>(vazia)</td></tr>
-</table>
-<p class="nota">O método <code>toString()</code> da <code>PilhaLista</code> mostra a pilha do topo para a base, por exemplo <code>topo [40, 30, 10] base</code>. Mantenha os nomes da classe <code>Questao4</code> e do método: a correção usa testes automáticos adicionais. Você pode criar métodos auxiliares.</p>`,
-            template: Q4_TEMPLATE,
-            fornecido: [CLASSE_NO, CLASSE_PILHA],
+            enunciado:
+              '\n<p>Implemente um método <code>void removerValor(PilhaLista p, int valor)<\/code> que retire da pilha <strong>todas as ocorrências<\/strong> do <code>valor<\/code> informado.\nOs demais elementos devem continuar na <strong>mesma ordem relativa<\/strong> que possuíam antes da operação.<\/p>\n<ul>\n  <li>Use uma <strong>pilha auxiliar<\/strong> (outra <code>PilhaLista<\/code>) para reconstruir a pilha sem os valores removidos.<\/li>\n  <li>As classes <code>No<\/code> e <code>PilhaLista<\/code> já estão completas no editor. Use somente as operações públicas: <code>push<\/code>, <code>pop<\/code>, <code>peek<\/code>, <code>isEmpty<\/code> e <code>size<\/code>. Não altere essas classes.<\/li>\n  <li>Se o valor não existir, ou se a pilha estiver vazia, a pilha deve ficar como estava (sem lançar exceção).<\/li>\n<\/ul>\n<table class="exemplos">\n  <tr><th>Pilha antes (topo → base)<\/th><th>Chamada<\/th><th>Pilha depois (topo → base)<\/th><\/tr>\n  <tr><td><code>40, 20, 30, 20, 10<\/code><\/td><td><code>removerValor(p, 20)<\/code><\/td><td><code>40, 30, 10<\/code><\/td><\/tr>\n  <tr><td><code>3, 2, 1<\/code><\/td><td><code>removerValor(p, 9)<\/code><\/td><td><code>3, 2, 1<\/code><\/td><\/tr>\n  <tr><td><code>7, 7, 7<\/code><\/td><td><code>removerValor(p, 7)<\/code><\/td><td>(vazia)<\/td><\/tr>\n<\/table>\n<p class="nota">O método <code>toString()<\/code> da <code>PilhaLista<\/code> mostra a pilha do topo para a base, por exemplo <code>topo [40, 30, 10] base<\/code>. Mantenha os nomes da classe <code>Questao4<\/code> e do método: a correção usa testes automáticos adicionais. Você pode criar métodos auxiliares.<\/p>',
+            template:
+              '// Questão 4 — Exercício 24 da lista: removerValor(PilhaLista p, int valor)\n// As classes No e PilhaLista abaixo estão COMPLETAS e prontas para uso: não as altere.\n// Implemente apenas o método removerValor na classe Questao4.\n// NÃO use classes de java.util.\n\nclass No {\n    int valor;\n    No proximo;\n\n    No(int valor) {\n        this.valor = valor;\n        this.proximo = null;\n    }\n}\n\nclass PilhaLista {\n    private No topo;\n    private int tamanho;\n\n    public PilhaLista() {\n        topo = null;\n        tamanho = 0;\n    }\n\n    public void push(int valor) {\n        No novo = new No(valor);\n        novo.proximo = topo;\n        topo = novo;\n        tamanho++;\n    }\n\n    public int pop() {\n        if (isEmpty()) {\n            throw new IllegalStateException("Erro! Pilha vazia.");\n        }\n        int valor = topo.valor;\n        topo = topo.proximo;\n        tamanho--;\n        return valor;\n    }\n\n    public int peek() {\n        if (isEmpty()) {\n            throw new IllegalStateException("Erro! Pilha vazia.");\n        }\n        return topo.valor;\n    }\n\n    public boolean isEmpty() {\n        return topo == null;\n    }\n\n    public int size() {\n        return tamanho;\n    }\n\n    // Mostra do topo para a base. Exemplo: topo [40, 30, 10] base\n    public String toString() {\n        StringBuilder sb = new StringBuilder("topo [");\n        No atual = topo;\n        while (atual != null) {\n            sb.append(atual.valor);\n            if (atual.proximo != null) sb.append(", ");\n            atual = atual.proximo;\n        }\n        return sb.append("] base").toString();\n    }\n}\n\nclass Questao4 {\n    public static void removerValor(PilhaLista p, int valor) {\n        // TODO: use uma pilha auxiliar (PilhaLista) para reconstruir p\n        //       sem as ocorrências de valor, mantendo a ordem dos demais.\n        //       (apague a linha abaixo ao implementar)\n        throw new UnsupportedOperationException("removerValor ainda não implementado");\n    }\n}\n\npublic class Main {\n    public static void main(String[] args) {\n        PilhaLista p = new PilhaLista();\n        p.push(10);\n        p.push(20);\n        p.push(30);\n        p.push(20);\n        p.push(40);                                 // 40 está no topo\n\n        System.out.println("Antes:   " + p);        // topo [40, 20, 30, 20, 10] base\n        Questao4.removerValor(p, 20);\n        System.out.println("Depois:  " + p);        // esperado: topo [40, 30, 10] base\n        System.out.println("Tamanho: " + p.size()); // esperado: 3\n    }\n}\n',
+            fornecido: [
+              "class No {\n    int valor;\n    No proximo;\n\n    No(int valor) {\n        this.valor = valor;\n        this.proximo = null;\n    }\n}",
+              'class PilhaLista {\n    private No topo;\n    private int tamanho;\n\n    public PilhaLista() {\n        topo = null;\n        tamanho = 0;\n    }\n\n    public void push(int valor) {\n        No novo = new No(valor);\n        novo.proximo = topo;\n        topo = novo;\n        tamanho++;\n    }\n\n    public int pop() {\n        if (isEmpty()) {\n            throw new IllegalStateException("Erro! Pilha vazia.");\n        }\n        int valor = topo.valor;\n        topo = topo.proximo;\n        tamanho--;\n        return valor;\n    }\n\n    public int peek() {\n        if (isEmpty()) {\n            throw new IllegalStateException("Erro! Pilha vazia.");\n        }\n        return topo.valor;\n    }\n\n    public boolean isEmpty() {\n        return topo == null;\n    }\n\n    public int size() {\n        return tamanho;\n    }\n\n    // Mostra do topo para a base. Exemplo: topo [40, 30, 10] base\n    public String toString() {\n        StringBuilder sb = new StringBuilder("topo [");\n        No atual = topo;\n        while (atual != null) {\n            sb.append(atual.valor);\n            if (atual.proximo != null) sb.append(", ");\n            atual = atual.proximo;\n        }\n        return sb.append("] base").toString();\n    }\n}',
+            ],
             testesPublicos: [
               {
                 id: "p1",
                 nome: "Exemplo: remove as duas ocorrências de 20",
                 codigo:
-                  pilha([10, 20, 30, 20, 40]) +
-                  'Questao4.removerValor(p, 20);\nSystem.out.println(p + " " + p.size());',
+                  'PilhaLista p = new PilhaLista();\nint[] pValores = {10, 20, 30, 20, 40};\nfor (int x : pValores) p.push(x);\nQuestao4.removerValor(p, 20);\nSystem.out.println(p + " " + p.size());',
                 esperado: "topo [40, 30, 10] base 3",
               },
               {
                 id: "p2",
                 nome: "Valor no topo e na base",
                 codigo:
-                  pilha([5, 1, 2, 5]) +
-                  'Questao4.removerValor(p, 5);\nSystem.out.println(p + " " + p.size());',
+                  'PilhaLista p = new PilhaLista();\nint[] pValores = {5, 1, 2, 5};\nfor (int x : pValores) p.push(x);\nQuestao4.removerValor(p, 5);\nSystem.out.println(p + " " + p.size());',
                 esperado: "topo [2, 1] base 2",
               },
               {
                 id: "p3",
                 nome: "Valor inexistente: pilha não muda",
                 codigo:
-                  pilha([1, 2, 3]) +
-                  'Questao4.removerValor(p, 9);\nSystem.out.println(p + " " + p.size());',
+                  'PilhaLista p = new PilhaLista();\nint[] pValores = {1, 2, 3};\nfor (int x : pValores) p.push(x);\nQuestao4.removerValor(p, 9);\nSystem.out.println(p + " " + p.size());',
                 esperado: "topo [3, 2, 1] base 3",
               },
               {
                 id: "p4",
                 nome: "Todos os elementos iguais ao valor",
                 codigo:
-                  pilha([7, 7, 7]) +
-                  'Questao4.removerValor(p, 7);\nSystem.out.println(p + " " + p.size() + " " + p.isEmpty());',
+                  'PilhaLista p = new PilhaLista();\nint[] pValores = {7, 7, 7};\nfor (int x : pValores) p.push(x);\nQuestao4.removerValor(p, 7);\nSystem.out.println(p + " " + p.size() + " " + p.isEmpty());',
                 esperado: "topo [] base 0 true",
               },
               {
                 id: "p5",
                 nome: "Pilha vazia: não lança exceção",
                 codigo:
-                  pilha([]) +
-                  'Questao4.removerValor(p, 1);\nSystem.out.println(p + " " + p.size());',
+                  'PilhaLista p = new PilhaLista();\nQuestao4.removerValor(p, 1);\nSystem.out.println(p + " " + p.size());',
                 esperado: "topo [] base 0",
               },
               {
                 id: "p6",
                 nome: "Ocorrências seguidas no meio",
                 codigo:
-                  pilha([1, 4, 4, 4, 2]) +
-                  'Questao4.removerValor(p, 4);\nSystem.out.println(p + " " + p.size());',
+                  'PilhaLista p = new PilhaLista();\nint[] pValores = {1, 4, 4, 4, 2};\nfor (int x : pValores) p.push(x);\nQuestao4.removerValor(p, 4);\nSystem.out.println(p + " " + p.size());',
                 esperado: "topo [2, 1] base 2",
               },
             ],
@@ -7812,89 +7582,415 @@ Os demais elementos devem continuar na <strong>mesma ordem relativa</strong> que
             titulo: "Concatenar duas filas",
             tema: "Filas · Exercício 29",
             pontos: 2.5,
-            enunciado: `
-<p>Implemente um método <code>FilaLista concatenar(FilaLista a, FilaLista b)</code> que crie e retorne uma <strong>nova fila</strong> contendo primeiro todos os elementos de <code>a</code> e depois todos os elementos de <code>b</code>.
-Ao final, as duas filas originais devem continuar com <strong>os mesmos elementos e na mesma ordem</strong>.</p>
-<ul>
-  <li>Resolva usando apenas <code>size()</code>, <code>enqueue()</code>, <code>dequeue()</code> e <code>isEmpty()</code>, conforme as classes trabalhadas em sala.</li>
-  <li>As classes <code>No</code> e <code>FilaLista</code> já estão completas no editor. Não altere essas classes.</li>
-  <li>A fila retornada deve ser um objeto novo (nem <code>a</code>, nem <code>b</code>). Qualquer uma das filas pode estar vazia.</li>
-</ul>
-<table class="exemplos">
-  <tr><th><code>a</code> (início → fim)</th><th><code>b</code> (início → fim)</th><th>Retorno de <code>concatenar(a, b)</code></th></tr>
-  <tr><td><code>1, 2, 3</code></td><td><code>4, 5</code></td><td><code>1, 2, 3, 4, 5</code></td></tr>
-  <tr><td>(vazia)</td><td><code>7, 8</code></td><td><code>7, 8</code></td></tr>
-  <tr><td><code>9, 8</code></td><td><code>1, 2</code></td><td><code>9, 8, 1, 2</code></td></tr>
-</table>
-<p class="nota">O método <code>toString()</code> da <code>FilaLista</code> mostra a fila do início para o fim, por exemplo <code>inicio [1, 2, 3] fim</code>. Mantenha os nomes da classe <code>Questao5</code> e do método: a correção usa testes automáticos adicionais. Você pode criar métodos auxiliares.</p>`,
-            template: Q5_TEMPLATE,
-            fornecido: [CLASSE_NO, CLASSE_FILA],
+            enunciado:
+              '\n<p>Implemente um método <code>FilaLista concatenar(FilaLista a, FilaLista b)<\/code> que crie e retorne uma <strong>nova fila<\/strong> contendo primeiro todos os elementos de <code>a<\/code> e depois todos os elementos de <code>b<\/code>.\nAo final, as duas filas originais devem continuar com <strong>os mesmos elementos e na mesma ordem<\/strong>.<\/p>\n<ul>\n  <li>Resolva usando apenas <code>size()<\/code>, <code>enqueue()<\/code>, <code>dequeue()<\/code> e <code>isEmpty()<\/code>, conforme as classes trabalhadas em sala.<\/li>\n  <li>As classes <code>No<\/code> e <code>FilaLista<\/code> já estão completas no editor. Não altere essas classes.<\/li>\n  <li>A fila retornada deve ser um objeto novo (nem <code>a<\/code>, nem <code>b<\/code>). Qualquer uma das filas pode estar vazia.<\/li>\n<\/ul>\n<table class="exemplos">\n  <tr><th><code>a<\/code> (início → fim)<\/th><th><code>b<\/code> (início → fim)<\/th><th>Retorno de <code>concatenar(a, b)<\/code><\/th><\/tr>\n  <tr><td><code>1, 2, 3<\/code><\/td><td><code>4, 5<\/code><\/td><td><code>1, 2, 3, 4, 5<\/code><\/td><\/tr>\n  <tr><td>(vazia)<\/td><td><code>7, 8<\/code><\/td><td><code>7, 8<\/code><\/td><\/tr>\n  <tr><td><code>9, 8<\/code><\/td><td><code>1, 2<\/code><\/td><td><code>9, 8, 1, 2<\/code><\/td><\/tr>\n<\/table>\n<p class="nota">O método <code>toString()<\/code> da <code>FilaLista<\/code> mostra a fila do início para o fim, por exemplo <code>inicio [1, 2, 3] fim<\/code>. Mantenha os nomes da classe <code>Questao5<\/code> e do método: a correção usa testes automáticos adicionais. Você pode criar métodos auxiliares.<\/p>',
+            template:
+              '// Questão 5 — Exercício 29 da lista: concatenar(FilaLista a, FilaLista b)\n// As classes No e FilaLista abaixo estão COMPLETAS e prontas para uso: não as altere.\n// Implemente apenas o método concatenar na classe Questao5.\n// NÃO use classes de java.util.\n\nclass No {\n    int valor;\n    No proximo;\n\n    No(int valor) {\n        this.valor = valor;\n        this.proximo = null;\n    }\n}\n\nclass FilaLista {\n    private No inicio;\n    private No fim;\n    private int tamanho;\n\n    public FilaLista() {\n        inicio = null;\n        fim = null;\n        tamanho = 0;\n    }\n\n    public void enqueue(int valor) {\n        No novo = new No(valor);\n        if (isEmpty()) {\n            inicio = novo;\n            fim = novo;\n        } else {\n            fim.proximo = novo;\n            fim = novo;\n        }\n        tamanho++;\n    }\n\n    public int dequeue() {\n        if (isEmpty()) {\n            throw new IllegalStateException("Erro! Fila vazia.");\n        }\n        int valor = inicio.valor;\n        inicio = inicio.proximo;\n        tamanho--;\n        if (inicio == null) {\n            fim = null;\n        }\n        return valor;\n    }\n\n    public int peek() {\n        if (isEmpty()) {\n            throw new IllegalStateException("Erro! Fila vazia.");\n        }\n        return inicio.valor;\n    }\n\n    public boolean isEmpty() {\n        return inicio == null;\n    }\n\n    public int size() {\n        return tamanho;\n    }\n\n    // Mostra do início para o fim. Exemplo: inicio [1, 2, 3] fim\n    public String toString() {\n        StringBuilder sb = new StringBuilder("inicio [");\n        No atual = inicio;\n        while (atual != null) {\n            sb.append(atual.valor);\n            if (atual.proximo != null) sb.append(", ");\n            atual = atual.proximo;\n        }\n        return sb.append("] fim").toString();\n    }\n}\n\nclass Questao5 {\n    public static FilaLista concatenar(FilaLista a, FilaLista b) {\n        // TODO: use apenas size(), enqueue(), dequeue() e isEmpty().\n        //       a e b devem terminar com os mesmos elementos, na mesma ordem.\n        //       (apague a linha abaixo ao implementar)\n        throw new UnsupportedOperationException("concatenar ainda não implementado");\n    }\n}\n\npublic class Main {\n    public static void main(String[] args) {\n        FilaLista a = new FilaLista();\n        a.enqueue(1);\n        a.enqueue(2);\n        a.enqueue(3);\n\n        FilaLista b = new FilaLista();\n        b.enqueue(4);\n        b.enqueue(5);\n\n        FilaLista c = Questao5.concatenar(a, b);\n        System.out.println("c = " + c);   // esperado: inicio [1, 2, 3, 4, 5] fim\n        System.out.println("a = " + a);   // esperado: inicio [1, 2, 3] fim\n        System.out.println("b = " + b);   // esperado: inicio [4, 5] fim\n    }\n}\n',
+            fornecido: [
+              "class No {\n    int valor;\n    No proximo;\n\n    No(int valor) {\n        this.valor = valor;\n        this.proximo = null;\n    }\n}",
+              'class FilaLista {\n    private No inicio;\n    private No fim;\n    private int tamanho;\n\n    public FilaLista() {\n        inicio = null;\n        fim = null;\n        tamanho = 0;\n    }\n\n    public void enqueue(int valor) {\n        No novo = new No(valor);\n        if (isEmpty()) {\n            inicio = novo;\n            fim = novo;\n        } else {\n            fim.proximo = novo;\n            fim = novo;\n        }\n        tamanho++;\n    }\n\n    public int dequeue() {\n        if (isEmpty()) {\n            throw new IllegalStateException("Erro! Fila vazia.");\n        }\n        int valor = inicio.valor;\n        inicio = inicio.proximo;\n        tamanho--;\n        if (inicio == null) {\n            fim = null;\n        }\n        return valor;\n    }\n\n    public int peek() {\n        if (isEmpty()) {\n            throw new IllegalStateException("Erro! Fila vazia.");\n        }\n        return inicio.valor;\n    }\n\n    public boolean isEmpty() {\n        return inicio == null;\n    }\n\n    public int size() {\n        return tamanho;\n    }\n\n    // Mostra do início para o fim. Exemplo: inicio [1, 2, 3] fim\n    public String toString() {\n        StringBuilder sb = new StringBuilder("inicio [");\n        No atual = inicio;\n        while (atual != null) {\n            sb.append(atual.valor);\n            if (atual.proximo != null) sb.append(", ");\n            atual = atual.proximo;\n        }\n        return sb.append("] fim").toString();\n    }\n}',
+            ],
             testesPublicos: [
               {
                 id: "p1",
                 nome: "Exemplo: a = [1, 2, 3], b = [4, 5]",
                 codigo:
-                  fila([1, 2, 3], "a") +
-                  fila([4, 5], "b") +
-                  'FilaLista c = Questao5.concatenar(a, b);\nSystem.out.println(c + " " + c.size());',
+                  'FilaLista a = new FilaLista();\nint[] aValores = {1, 2, 3};\nfor (int x : aValores) a.enqueue(x);\nFilaLista b = new FilaLista();\nint[] bValores = {4, 5};\nfor (int x : bValores) b.enqueue(x);\nFilaLista c = Questao5.concatenar(a, b);\nSystem.out.println(c + " " + c.size());',
                 esperado: "inicio [1, 2, 3, 4, 5] fim 5",
               },
               {
                 id: "p2",
                 nome: "Filas originais preservadas",
                 codigo:
-                  fila([1, 2, 3], "a") +
-                  fila([4, 5], "b") +
-                  'Questao5.concatenar(a, b);\nSystem.out.println(a + " | " + b);',
+                  'FilaLista a = new FilaLista();\nint[] aValores = {1, 2, 3};\nfor (int x : aValores) a.enqueue(x);\nFilaLista b = new FilaLista();\nint[] bValores = {4, 5};\nfor (int x : bValores) b.enqueue(x);\nQuestao5.concatenar(a, b);\nSystem.out.println(a + " | " + b);',
                 esperado: "inicio [1, 2, 3] fim | inicio [4, 5] fim",
               },
               {
                 id: "p3",
                 nome: "Primeira fila vazia",
                 codigo:
-                  fila([], "a") +
-                  fila([7, 8], "b") +
-                  "System.out.println(Questao5.concatenar(a, b));",
+                  "FilaLista a = new FilaLista();\nFilaLista b = new FilaLista();\nint[] bValores = {7, 8};\nfor (int x : bValores) b.enqueue(x);\nSystem.out.println(Questao5.concatenar(a, b));",
                 esperado: "inicio [7, 8] fim",
               },
               {
                 id: "p4",
                 nome: "Segunda fila vazia",
                 codigo:
-                  fila([7, 8], "a") +
-                  fila([], "b") +
-                  "System.out.println(Questao5.concatenar(a, b));",
+                  "FilaLista a = new FilaLista();\nint[] aValores = {7, 8};\nfor (int x : aValores) a.enqueue(x);\nFilaLista b = new FilaLista();\nSystem.out.println(Questao5.concatenar(a, b));",
                 esperado: "inicio [7, 8] fim",
               },
               {
                 id: "p5",
                 nome: "Duas filas vazias",
                 codigo:
-                  fila([], "a") +
-                  fila([], "b") +
-                  'FilaLista c = Questao5.concatenar(a, b);\nSystem.out.println(c + " " + c.size() + " " + c.isEmpty());',
+                  'FilaLista a = new FilaLista();\nFilaLista b = new FilaLista();\nFilaLista c = Questao5.concatenar(a, b);\nSystem.out.println(c + " " + c.size() + " " + c.isEmpty());',
                 esperado: "inicio [] fim 0 true",
               },
               {
                 id: "p6",
                 nome: "Tamanhos de c, a e b ao final",
                 codigo:
-                  fila([10, 20, 30], "a") +
-                  fila([40], "b") +
-                  'FilaLista c = Questao5.concatenar(a, b);\nSystem.out.println(c.size() + " " + a.size() + " " + b.size());',
+                  'FilaLista a = new FilaLista();\nint[] aValores = {10, 20, 30};\nfor (int x : aValores) a.enqueue(x);\nFilaLista b = new FilaLista();\nint[] bValores = {40};\nfor (int x : bValores) b.enqueue(x);\nFilaLista c = Questao5.concatenar(a, b);\nSystem.out.println(c.size() + " " + a.size() + " " + b.size());',
                 esperado: "4 3 1",
               },
             ],
           },
-        ];
-
-        root.PROVA_QUESTOES = QUESTOES;
-        root.PROVA_HELPERS = { pilha, fila };
-        if (typeof module !== "undefined" && module.exports) {
-          module.exports = QUESTOES;
-          module.exports.helpers = { pilha, fila };
-        }
-      })(typeof window !== "undefined" ? window : globalThis);
+        ],
+        B: [
+          {
+            id: "q1",
+            numero: 1,
+            tipo: "objetiva",
+            titulo: "Rastreando uma pilha e uma fila",
+            tema: "Pilhas e filas",
+            pontos: 1.5,
+            enunciado:
+              '\n<p>Considere as classes <code>Pilha<\/code> e <code>Fila<\/code> de inteiros, ambas implementadas com nós e funcionando corretamente:\n<code>Pilha<\/code> oferece <code>push<\/code>, <code>pop<\/code>, <code>peek<\/code> e <code>isEmpty<\/code>;\n<code>Fila<\/code> oferece <code>enqueue<\/code>, <code>dequeue<\/code> e <code>isEmpty<\/code>.<\/p>\n<pre class="code-block" data-java>Pilha p = new Pilha();\nFila  f = new Fila();\nint[] dados = {7, 3, 12, 8, 5, 10};\n\nfor (int i = 0; i &lt; dados.length; i++) {\n    if (i % 2 == 0) f.enqueue(dados[i]);\n    else            p.push(dados[i]);\n}\n\np.push(f.dequeue() + p.pop());\nf.enqueue(p.peek() - 5);\np.push(f.dequeue());\n\nwhile (!p.isEmpty()) System.out.print(p.pop() + " ");\nSystem.out.print("| ");\nwhile (!f.isEmpty()) System.out.print(f.dequeue() + " ");<\/pre>\n<p>Observe que a condição do <code>if<\/code> usa o <strong>índice<\/strong> <code>i<\/code>, e não o valor. Em Java, os operandos de <code>+<\/code> são avaliados da esquerda para a direita.\n<strong>Qual é a saída impressa pelo trecho?<\/strong><\/p>',
+            alternativas: [
+              { id: "o1", html: "<code>3 8 17 12 | 5 12<\/code>" },
+              { id: "o2", html: "<code>12 17 8 3 | 5 12<\/code>" },
+              { id: "o3", html: "<code>12 17 8 3 | 12 5<\/code>" },
+              { id: "o4", html: "<code>12 17 10 8 3 | 5 12<\/code>" },
+              { id: "o5", html: "<code>12 17 8 3 | 5 12 12<\/code>" },
+            ],
+          },
+          {
+            id: "q2",
+            numero: 2,
+            tipo: "objetiva",
+            titulo: "Inserção em lista duplamente encadeada",
+            tema: "Listas encadeadas",
+            pontos: 1.5,
+            enunciado:
+              '\n<p>Em uma lista duplamente encadeada, cada nó possui as referências <code>anterior<\/code> e <code>proximo<\/code>:<\/p>\n<pre class="code-block" data-java>class NoDuplo {\n    int valor;\n    NoDuplo anterior;\n    NoDuplo proximo;\n}<\/pre>\n<p>A variável <code>atual<\/code> aponta para um nó que <strong>não é o último<\/strong> da lista, e <code>novo<\/code> é um nó recém-criado (com <code>anterior<\/code> e <code>proximo<\/code> nulos).\nQual alternativa insere <code>novo<\/code> <strong>imediatamente depois<\/strong> de <code>atual<\/code>, deixando a lista consistente para navegação <strong>nos dois sentidos<\/strong>?<\/p>',
+            alternativas: [
+              {
+                id: "o1",
+                html: '<pre class="code-block" data-java>atual.proximo = novo;\nnovo.anterior = atual;\nnovo.proximo = atual.proximo;\natual.proximo.anterior = novo;<\/pre>',
+              },
+              {
+                id: "o2",
+                html: '<pre class="code-block" data-java>novo.anterior = atual;\nnovo.proximo = atual.proximo;\natual.proximo.anterior = novo;\natual.proximo = novo;<\/pre>',
+              },
+              {
+                id: "o3",
+                html: '<pre class="code-block" data-java>novo.anterior = atual;\nnovo.proximo = atual.proximo;\natual.proximo = novo;\natual.proximo.anterior = novo;<\/pre>',
+              },
+              {
+                id: "o4",
+                html: '<pre class="code-block" data-java>novo.proximo = atual.proximo;\natual.proximo = novo;<\/pre>',
+              },
+              {
+                id: "o5",
+                html: '<pre class="code-block" data-java>novo.anterior = atual.anterior;\nnovo.proximo = atual;\natual.anterior.proximo = novo;\natual.anterior = novo;<\/pre>',
+              },
+            ],
+          },
+          {
+            id: "q3",
+            numero: 3,
+            tipo: "discursiva",
+            titulo: "Estruturas de um navegador web",
+            tema: "Listas, pilhas e filas",
+            pontos: 2,
+            enunciado:
+              '\n<p>Uma equipe está desenvolvendo um navegador web com as seguintes funcionalidades:<\/p>\n<ol type="a">\n  <li><strong>Botão Voltar:<\/strong> cada clique retorna para a página visitada <em>imediatamente antes<\/em> da atual; vários cliques seguidos vão voltando pelo histórico.<\/li>\n  <li><strong>Downloads:<\/strong> o usuário clica em vários arquivos para baixar, e os downloads devem ser feitos um de cada vez, exatamente na ordem em que foram solicitados.<\/li>\n  <li><strong>Abas abertas:<\/strong> o usuário alterna para a aba vizinha da esquerda ou da direita e pode fechar qualquer aba, inclusive uma do meio.<\/li>\n<\/ol>\n<p>Para cada funcionalidade (a, b e c), indique a estrutura de dados mais adequada entre <strong>pilha<\/strong>, <strong>fila<\/strong>, <strong>lista simplesmente encadeada<\/strong> e <strong>lista duplamente encadeada<\/strong>, justificando com base no princípio de funcionamento da estrutura e nas operações envolvidas.<\/p>\n<p>Por fim, <strong>(d)<\/strong> o histórico do item (a) foi implementado com uma <code>PilhaVetor<\/code> (vetor de capacidade fixa). Explique por que, nessa versão, <code>isFull()<\/code> pode retornar <code>true<\/code>, o que acontece em um <code>push<\/code> nessa situação, e por que a <code>PilhaLista<\/code> (encadeada) não tem esse problema.<\/p>',
+            placeholder:
+              "Organize sua resposta em itens: (a) ... (b) ... (c) ... (d) ...",
+          },
+          {
+            id: "q4",
+            numero: 4,
+            tipo: "pratica",
+            titulo: "Contar elementos maiores que um limite",
+            tema: "Pilhas · Exercício 7",
+            pontos: 2.5,
+            enunciado:
+              '\n<p>Usando <code>PilhaLista<\/code>, implemente um método <code>int contarMaioresQue(PilhaLista p, int limite)<\/code> que conte quantos elementos da pilha são <strong>maiores<\/strong> que o <code>limite<\/code> informado.<\/p>\n<ul>\n  <li>Use apenas <code>push()<\/code>, <code>pop()<\/code>, <code>isEmpty()<\/code> e uma <strong>pilha auxiliar<\/strong>.<\/li>\n  <li>Ao final, a pilha recebida deve estar <strong>exatamente como antes<\/strong> (mesmos elementos, mesma ordem).<\/li>\n  <li>Elementos <strong>iguais<\/strong> ao limite não contam. Se a pilha estiver vazia, o resultado é 0.<\/li>\n  <li>As classes <code>No<\/code> e <code>PilhaLista<\/code> já estão completas no editor. Não altere essas classes.<\/li>\n<\/ul>\n<table class="exemplos">\n  <tr><th>Pilha (topo → base)<\/th><th>Chamada<\/th><th>Retorno<\/th><\/tr>\n  <tr><td><code>3, 20, 8, 12, 5<\/code><\/td><td><code>contarMaioresQue(p, 7)<\/code><\/td><td><code>3<\/code><\/td><\/tr>\n  <tr><td><code>6, 5, 5<\/code><\/td><td><code>contarMaioresQue(p, 5)<\/code><\/td><td><code>1<\/code><\/td><\/tr>\n  <tr><td>(vazia)<\/td><td><code>contarMaioresQue(p, 0)<\/code><\/td><td><code>0<\/code><\/td><\/tr>\n<\/table>\n<p class="nota">O método <code>toString()<\/code> da <code>PilhaLista<\/code> mostra a pilha do topo para a base, por exemplo <code>topo [3, 20, 8, 12, 5] base<\/code>. Mantenha os nomes da classe <code>Questao4<\/code> e do método: a correção usa testes automáticos adicionais. Você pode criar métodos auxiliares.<\/p>',
+            template:
+              '// Questão 4 — Exercício 7 da lista: contarMaioresQue(PilhaLista p, int limite)\n// As classes No e PilhaLista abaixo estão COMPLETAS e prontas para uso: não as altere.\n// Implemente apenas o método contarMaioresQue na classe Questao4.\n// NÃO use classes de java.util.\n\nclass No {\n    int valor;\n    No proximo;\n\n    No(int valor) {\n        this.valor = valor;\n        this.proximo = null;\n    }\n}\n\nclass PilhaLista {\n    private No topo;\n    private int tamanho;\n\n    public PilhaLista() {\n        topo = null;\n        tamanho = 0;\n    }\n\n    public void push(int valor) {\n        No novo = new No(valor);\n        novo.proximo = topo;\n        topo = novo;\n        tamanho++;\n    }\n\n    public int pop() {\n        if (isEmpty()) {\n            throw new IllegalStateException("Erro! Pilha vazia.");\n        }\n        int valor = topo.valor;\n        topo = topo.proximo;\n        tamanho--;\n        return valor;\n    }\n\n    public int peek() {\n        if (isEmpty()) {\n            throw new IllegalStateException("Erro! Pilha vazia.");\n        }\n        return topo.valor;\n    }\n\n    public boolean isEmpty() {\n        return topo == null;\n    }\n\n    public int size() {\n        return tamanho;\n    }\n\n    // Mostra do topo para a base. Exemplo: topo [40, 30, 10] base\n    public String toString() {\n        StringBuilder sb = new StringBuilder("topo [");\n        No atual = topo;\n        while (atual != null) {\n            sb.append(atual.valor);\n            if (atual.proximo != null) sb.append(", ");\n            atual = atual.proximo;\n        }\n        return sb.append("] base").toString();\n    }\n}\n\nclass Questao4 {\n    public static int contarMaioresQue(PilhaLista p, int limite) {\n        // TODO: use push(), pop(), isEmpty() e uma pilha auxiliar.\n        //       Ao final, p deve estar exatamente como antes.\n        //       (apague a linha abaixo ao implementar)\n        throw new UnsupportedOperationException("contarMaioresQue ainda não implementado");\n    }\n}\n\npublic class Main {\n    public static void main(String[] args) {\n        PilhaLista p = new PilhaLista();\n        p.push(5);\n        p.push(12);\n        p.push(8);\n        p.push(20);\n        p.push(3);                                        // 3 está no topo\n\n        int qtd = Questao4.contarMaioresQue(p, 7);\n        System.out.println("Maiores que 7: " + qtd);      // esperado: 3\n        System.out.println("Pilha: " + p);                // esperado: topo [3, 20, 8, 12, 5] base\n    }\n}\n',
+            fornecido: [
+              "class No {\n    int valor;\n    No proximo;\n\n    No(int valor) {\n        this.valor = valor;\n        this.proximo = null;\n    }\n}",
+              'class PilhaLista {\n    private No topo;\n    private int tamanho;\n\n    public PilhaLista() {\n        topo = null;\n        tamanho = 0;\n    }\n\n    public void push(int valor) {\n        No novo = new No(valor);\n        novo.proximo = topo;\n        topo = novo;\n        tamanho++;\n    }\n\n    public int pop() {\n        if (isEmpty()) {\n            throw new IllegalStateException("Erro! Pilha vazia.");\n        }\n        int valor = topo.valor;\n        topo = topo.proximo;\n        tamanho--;\n        return valor;\n    }\n\n    public int peek() {\n        if (isEmpty()) {\n            throw new IllegalStateException("Erro! Pilha vazia.");\n        }\n        return topo.valor;\n    }\n\n    public boolean isEmpty() {\n        return topo == null;\n    }\n\n    public int size() {\n        return tamanho;\n    }\n\n    // Mostra do topo para a base. Exemplo: topo [40, 30, 10] base\n    public String toString() {\n        StringBuilder sb = new StringBuilder("topo [");\n        No atual = topo;\n        while (atual != null) {\n            sb.append(atual.valor);\n            if (atual.proximo != null) sb.append(", ");\n            atual = atual.proximo;\n        }\n        return sb.append("] base").toString();\n    }\n}',
+            ],
+            testesPublicos: [
+              {
+                id: "p1",
+                nome: "Exemplo: limite 7",
+                codigo:
+                  'PilhaLista p = new PilhaLista();\nint[] pValores = {5, 12, 8, 20, 3};\nfor (int x : pValores) p.push(x);\nint c = Questao4.contarMaioresQue(p, 7);\nSystem.out.println(c + " " + p);',
+                esperado: "3 topo [3, 20, 8, 12, 5] base",
+              },
+              {
+                id: "p2",
+                nome: "Nenhum elemento maior",
+                codigo:
+                  'PilhaLista p = new PilhaLista();\nint[] pValores = {1, 2, 3};\nfor (int x : pValores) p.push(x);\nint c = Questao4.contarMaioresQue(p, 10);\nSystem.out.println(c + " " + p);',
+                esperado: "0 topo [3, 2, 1] base",
+              },
+              {
+                id: "p3",
+                nome: "Todos os elementos maiores",
+                codigo:
+                  'PilhaLista p = new PilhaLista();\nint[] pValores = {8, 9, 10};\nfor (int x : pValores) p.push(x);\nint c = Questao4.contarMaioresQue(p, 0);\nSystem.out.println(c + " " + p);',
+                esperado: "3 topo [10, 9, 8] base",
+              },
+              {
+                id: "p4",
+                nome: "Igual ao limite não conta",
+                codigo:
+                  'PilhaLista p = new PilhaLista();\nint[] pValores = {5, 5, 6};\nfor (int x : pValores) p.push(x);\nint c = Questao4.contarMaioresQue(p, 5);\nSystem.out.println(c + " " + p);',
+                esperado: "1 topo [6, 5, 5] base",
+              },
+              {
+                id: "p5",
+                nome: "Pilha vazia",
+                codigo:
+                  'PilhaLista p = new PilhaLista();\nint c = Questao4.contarMaioresQue(p, 0);\nSystem.out.println(c + " " + p);',
+                esperado: "0 topo [] base",
+              },
+              {
+                id: "p6",
+                nome: "Valores negativos",
+                codigo:
+                  'PilhaLista p = new PilhaLista();\nint[] pValores = {-3, -1, 0, 2};\nfor (int x : pValores) p.push(x);\nint c = Questao4.contarMaioresQue(p, -2);\nSystem.out.println(c + " " + p);',
+                esperado: "3 topo [2, 0, -1, -3] base",
+              },
+            ],
+          },
+          {
+            id: "q5",
+            numero: 5,
+            tipo: "pratica",
+            titulo: "Remover um valor da fila",
+            tema: "Filas · Exercício 28",
+            pontos: 2.5,
+            enunciado:
+              '\n<p>Implemente um método <code>void removerValor(FilaLista fila, int valor)<\/code> que elimine <strong>todas as ocorrências<\/strong> do <code>valor<\/code> informado.<\/p>\n<ul>\n  <li>Percorra <strong>somente a quantidade de elementos que existia no início<\/strong> da operação (use <code>size()<\/code>).<\/li>\n  <li>Cada valor diferente deve voltar para o <strong>final<\/strong> da fila, preservando a ordem relativa.<\/li>\n  <li>Use as operações <code>size()<\/code>, <code>enqueue()<\/code>, <code>dequeue()<\/code> e <code>isEmpty()<\/code>. Se o valor não existir, ou a fila estiver vazia, ela deve ficar como estava.<\/li>\n  <li>As classes <code>No<\/code> e <code>FilaLista<\/code> já estão completas no editor. Não altere essas classes.<\/li>\n<\/ul>\n<table class="exemplos">\n  <tr><th>Fila antes (início → fim)<\/th><th>Chamada<\/th><th>Fila depois (início → fim)<\/th><\/tr>\n  <tr><td><code>1, 2, 3, 2, 4<\/code><\/td><td><code>removerValor(f, 2)<\/code><\/td><td><code>1, 3, 4<\/code><\/td><\/tr>\n  <tr><td><code>5, 1, 5<\/code><\/td><td><code>removerValor(f, 5)<\/code><\/td><td><code>1<\/code><\/td><\/tr>\n  <tr><td><code>1, 2, 3<\/code><\/td><td><code>removerValor(f, 9)<\/code><\/td><td><code>1, 2, 3<\/code><\/td><\/tr>\n<\/table>\n<p class="nota">O método <code>toString()<\/code> da <code>FilaLista<\/code> mostra a fila do início para o fim, por exemplo <code>inicio [1, 3, 4] fim<\/code>. Mantenha os nomes da classe <code>Questao5<\/code> e do método: a correção usa testes automáticos adicionais. Você pode criar métodos auxiliares.<\/p>',
+            template:
+              '// Questão 5 — Exercício 28 da lista: removerValor(FilaLista fila, int valor)\n// As classes No e FilaLista abaixo estão COMPLETAS e prontas para uso: não as altere.\n// Implemente apenas o método removerValor na classe Questao5.\n// NÃO use classes de java.util.\n\nclass No {\n    int valor;\n    No proximo;\n\n    No(int valor) {\n        this.valor = valor;\n        this.proximo = null;\n    }\n}\n\nclass FilaLista {\n    private No inicio;\n    private No fim;\n    private int tamanho;\n\n    public FilaLista() {\n        inicio = null;\n        fim = null;\n        tamanho = 0;\n    }\n\n    public void enqueue(int valor) {\n        No novo = new No(valor);\n        if (isEmpty()) {\n            inicio = novo;\n            fim = novo;\n        } else {\n            fim.proximo = novo;\n            fim = novo;\n        }\n        tamanho++;\n    }\n\n    public int dequeue() {\n        if (isEmpty()) {\n            throw new IllegalStateException("Erro! Fila vazia.");\n        }\n        int valor = inicio.valor;\n        inicio = inicio.proximo;\n        tamanho--;\n        if (inicio == null) {\n            fim = null;\n        }\n        return valor;\n    }\n\n    public int peek() {\n        if (isEmpty()) {\n            throw new IllegalStateException("Erro! Fila vazia.");\n        }\n        return inicio.valor;\n    }\n\n    public boolean isEmpty() {\n        return inicio == null;\n    }\n\n    public int size() {\n        return tamanho;\n    }\n\n    // Mostra do início para o fim. Exemplo: inicio [1, 2, 3] fim\n    public String toString() {\n        StringBuilder sb = new StringBuilder("inicio [");\n        No atual = inicio;\n        while (atual != null) {\n            sb.append(atual.valor);\n            if (atual.proximo != null) sb.append(", ");\n            atual = atual.proximo;\n        }\n        return sb.append("] fim").toString();\n    }\n}\n\nclass Questao5 {\n    public static void removerValor(FilaLista fila, int valor) {\n        // TODO: percorra apenas size() elementos (quantidade inicial);\n        //       valores diferentes de valor voltam para o fim da fila.\n        //       (apague a linha abaixo ao implementar)\n        throw new UnsupportedOperationException("removerValor ainda não implementado");\n    }\n}\n\npublic class Main {\n    public static void main(String[] args) {\n        FilaLista f = new FilaLista();\n        f.enqueue(1);\n        f.enqueue(2);\n        f.enqueue(3);\n        f.enqueue(2);\n        f.enqueue(4);\n\n        System.out.println("Antes:   " + f);        // inicio [1, 2, 3, 2, 4] fim\n        Questao5.removerValor(f, 2);\n        System.out.println("Depois:  " + f);        // esperado: inicio [1, 3, 4] fim\n        System.out.println("Tamanho: " + f.size()); // esperado: 3\n    }\n}\n',
+            fornecido: [
+              "class No {\n    int valor;\n    No proximo;\n\n    No(int valor) {\n        this.valor = valor;\n        this.proximo = null;\n    }\n}",
+              'class FilaLista {\n    private No inicio;\n    private No fim;\n    private int tamanho;\n\n    public FilaLista() {\n        inicio = null;\n        fim = null;\n        tamanho = 0;\n    }\n\n    public void enqueue(int valor) {\n        No novo = new No(valor);\n        if (isEmpty()) {\n            inicio = novo;\n            fim = novo;\n        } else {\n            fim.proximo = novo;\n            fim = novo;\n        }\n        tamanho++;\n    }\n\n    public int dequeue() {\n        if (isEmpty()) {\n            throw new IllegalStateException("Erro! Fila vazia.");\n        }\n        int valor = inicio.valor;\n        inicio = inicio.proximo;\n        tamanho--;\n        if (inicio == null) {\n            fim = null;\n        }\n        return valor;\n    }\n\n    public int peek() {\n        if (isEmpty()) {\n            throw new IllegalStateException("Erro! Fila vazia.");\n        }\n        return inicio.valor;\n    }\n\n    public boolean isEmpty() {\n        return inicio == null;\n    }\n\n    public int size() {\n        return tamanho;\n    }\n\n    // Mostra do início para o fim. Exemplo: inicio [1, 2, 3] fim\n    public String toString() {\n        StringBuilder sb = new StringBuilder("inicio [");\n        No atual = inicio;\n        while (atual != null) {\n            sb.append(atual.valor);\n            if (atual.proximo != null) sb.append(", ");\n            atual = atual.proximo;\n        }\n        return sb.append("] fim").toString();\n    }\n}',
+            ],
+            testesPublicos: [
+              {
+                id: "p1",
+                nome: "Exemplo: remove as duas ocorrências de 2",
+                codigo:
+                  'FilaLista f = new FilaLista();\nint[] fValores = {1, 2, 3, 2, 4};\nfor (int x : fValores) f.enqueue(x);\nQuestao5.removerValor(f, 2);\nSystem.out.println(f + " " + f.size());',
+                esperado: "inicio [1, 3, 4] fim 3",
+              },
+              {
+                id: "p2",
+                nome: "Valor inexistente: fila não muda",
+                codigo:
+                  'FilaLista f = new FilaLista();\nint[] fValores = {1, 2, 3};\nfor (int x : fValores) f.enqueue(x);\nQuestao5.removerValor(f, 9);\nSystem.out.println(f + " " + f.size());',
+                esperado: "inicio [1, 2, 3] fim 3",
+              },
+              {
+                id: "p3",
+                nome: "Todos os elementos iguais ao valor",
+                codigo:
+                  'FilaLista f = new FilaLista();\nint[] fValores = {7, 7};\nfor (int x : fValores) f.enqueue(x);\nQuestao5.removerValor(f, 7);\nSystem.out.println(f + " " + f.size() + " " + f.isEmpty());',
+                esperado: "inicio [] fim 0 true",
+              },
+              {
+                id: "p4",
+                nome: "Fila vazia: não lança exceção",
+                codigo:
+                  'FilaLista f = new FilaLista();\nQuestao5.removerValor(f, 1);\nSystem.out.println(f + " " + f.size());',
+                esperado: "inicio [] fim 0",
+              },
+              {
+                id: "p5",
+                nome: "Valor no início e no fim",
+                codigo:
+                  'FilaLista f = new FilaLista();\nint[] fValores = {5, 1, 5};\nfor (int x : fValores) f.enqueue(x);\nQuestao5.removerValor(f, 5);\nSystem.out.println(f + " " + f.size());',
+                esperado: "inicio [1] fim 1",
+              },
+              {
+                id: "p6",
+                nome: "Fila continua utilizável depois",
+                codigo:
+                  'FilaLista f = new FilaLista();\nint[] fValores = {1, 2, 1};\nfor (int x : fValores) f.enqueue(x);\nQuestao5.removerValor(f, 1);\nf.enqueue(9);\nSystem.out.println(f + " " + f.size());',
+                esperado: "inicio [2, 9] fim 2",
+              },
+            ],
+          },
+        ],
+        C: [
+          {
+            id: "q1",
+            numero: 1,
+            tipo: "objetiva",
+            titulo: "Fila que realimenta uma pilha",
+            tema: "Pilhas e filas",
+            pontos: 1.5,
+            enunciado:
+              '\n<p>Considere as classes <code>Pilha<\/code> e <code>Fila<\/code> de inteiros, ambas implementadas com nós e funcionando corretamente:\n<code>Pilha<\/code> oferece <code>push<\/code>, <code>pop<\/code>, <code>peek<\/code> e <code>isEmpty<\/code>;\n<code>Fila<\/code> oferece <code>enqueue<\/code>, <code>dequeue<\/code> e <code>isEmpty<\/code>.<\/p>\n<pre class="code-block" data-java>Fila  f = new Fila();\nPilha p = new Pilha();\n\nfor (int i = 1; i &lt;= 6; i++) f.enqueue(i * 3);\n\nfor (int i = 0; i &lt; 4; i++) {\n    int x = f.dequeue();\n    if (x % 2 == 0) p.push(x);\n    else            f.enqueue(x + 1);\n}\n\np.push(p.pop() + p.pop());\nf.enqueue(p.peek());\n\nwhile (!f.isEmpty()) System.out.print(f.dequeue() + " ");\nSystem.out.print("| ");\nwhile (!p.isEmpty()) System.out.print(p.pop() + " ");<\/pre>\n<p><strong>Qual é a saída impressa pelo trecho?<\/strong><\/p>',
+            alternativas: [
+              { id: "o1", html: "<code>15 18 4 10 18 | 18<\/code>" },
+              { id: "o2", html: "<code>18 10 4 18 15 | 18<\/code>" },
+              { id: "o3", html: "<code>15 18 4 10 18 | 18 12 6<\/code>" },
+              { id: "o4", html: "<code>15 18 4 10 | 18<\/code>" },
+              { id: "o5", html: "<code>4 10 15 18 18 | 18<\/code>" },
+            ],
+          },
+          {
+            id: "q2",
+            numero: 2,
+            tipo: "objetiva",
+            titulo: "Percurso que altera a lista",
+            tema: "Listas encadeadas",
+            pontos: 1.5,
+            enunciado:
+              '\n<p>Uma <code>ListaSimples<\/code> contém, a partir de <code>cabeca<\/code>, os valores <code>1 → 2 → 3 → 4 → 5 → 6 → 7 → null<\/code>, em nós da classe:<\/p>\n<pre class="code-block" data-java>class No {\n    int valor;\n    No proximo;\n}<\/pre>\n<p>O trecho abaixo é executado:<\/p>\n<pre class="code-block" data-java>No atual = cabeca;\nwhile (atual != null &amp;&amp; atual.proximo != null) {\n    atual.proximo = atual.proximo.proximo;\n    atual = atual.proximo;\n}<\/pre>\n<p>Em seguida, a lista é percorrida a partir de <code>cabeca<\/code>, imprimindo cada valor. <strong>O que é impresso?<\/strong><\/p>',
+            alternativas: [
+              { id: "o1", html: "<code>2 4 6<\/code>" },
+              { id: "o2", html: "<code>1 2 3 4 5 6 7<\/code>" },
+              { id: "o3", html: "<code>1 4 7<\/code>" },
+              { id: "o4", html: "<code>1 3 5 7<\/code>" },
+              {
+                id: "o5",
+                html: "Nada: é lançada uma <code>NullPointerException<\/code> ao chegar no último nó.",
+              },
+            ],
+          },
+          {
+            id: "q3",
+            numero: 3,
+            tipo: "discursiva",
+            titulo: "Estruturas de um restaurante",
+            tema: "Listas, pilhas e filas",
+            pontos: 2,
+            enunciado:
+              '\n<p>Um restaurante vai informatizar três rotinas:<\/p>\n<ol type="a">\n  <li><strong>Pedidos da cozinha:<\/strong> os pedidos chegam dos garçons e devem ser preparados rigorosamente na ordem de chegada.<\/li>\n  <li><strong>Pratos para lavar:<\/strong> os pratos sujos são empilhados na pia; o lavador sempre pega o prato que foi colocado por último.<\/li>\n  <li><strong>Cardápio do dia:<\/strong> itens são inseridos e removidos em qualquer posição ao longo do dia, e o cardápio é sempre exibido do primeiro ao último item (nunca de trás para a frente). O tamanho varia muito de um dia para outro.<\/li>\n<\/ol>\n<p>Para cada rotina (a, b e c), indique a estrutura de dados mais adequada entre <strong>pilha<\/strong>, <strong>fila<\/strong>, <strong>lista simplesmente encadeada<\/strong> e <strong>lista duplamente encadeada<\/strong>, justificando com base no princípio de funcionamento da estrutura e nas operações envolvidas.<\/p>\n<p>Por fim, <strong>(d)<\/strong> a fila do item (a) foi implementada primeiro com um vetor (<code>FilaVetor<\/code> com deslocamento). Explique por que o <code>dequeue()<\/code> dessa versão precisa deslocar os elementos para a esquerda e por que a <code>FilaLista<\/code> (encadeada) não precisa desse deslocamento.<\/p>',
+            placeholder:
+              "Organize sua resposta em itens: (a) ... (b) ... (c) ... (d) ...",
+          },
+          {
+            id: "q4",
+            numero: 4,
+            tipo: "pratica",
+            titulo: "Consultar a base da pilha",
+            tema: "Pilhas · Exercício 23",
+            pontos: 2.5,
+            enunciado:
+              '\n<p>Implemente um método <code>int consultarBase(PilhaLista p)<\/code> que descubra e retorne o <code>valor<\/code> armazenado na <strong>base<\/strong> de uma <code>PilhaLista<\/code> (o elemento que foi empilhado primeiro).<\/p>\n<ul>\n  <li>Utilize uma <strong>pilha auxiliar<\/strong> e apenas as operações <code>push()<\/code>, <code>pop()<\/code>, <code>peek()<\/code> e <code>isEmpty()<\/code>.<\/li>\n  <li>Ao final, <code>p<\/code> deve permanecer <strong>exatamente como estava<\/strong> (mesmos elementos, mesma ordem).<\/li>\n  <li>Se <code>p<\/code> estiver vazia, o método deve lançar <code>IllegalStateException<\/code>.<\/li>\n  <li>As classes <code>No<\/code> e <code>PilhaLista<\/code> já estão completas no editor. Não altere essas classes.<\/li>\n<\/ul>\n<table class="exemplos">\n  <tr><th>Pilha (topo → base)<\/th><th>Retorno de <code>consultarBase(p)<\/code><\/th><\/tr>\n  <tr><td><code>40, 30, 20, 10<\/code><\/td><td><code>10<\/code><\/td><\/tr>\n  <tr><td><code>7<\/code><\/td><td><code>7<\/code><\/td><\/tr>\n  <tr><td>(vazia)<\/td><td>lança <code>IllegalStateException<\/code><\/td><\/tr>\n<\/table>\n<p class="nota">O método <code>toString()<\/code> da <code>PilhaLista<\/code> mostra a pilha do topo para a base, por exemplo <code>topo [40, 30, 20, 10] base<\/code>. Mantenha os nomes da classe <code>Questao4<\/code> e do método: a correção usa testes automáticos adicionais. Você pode criar métodos auxiliares.<\/p>',
+            template:
+              '// Questão 4 — Exercício 23 da lista: consultarBase(PilhaLista p)\n// As classes No e PilhaLista abaixo estão COMPLETAS e prontas para uso: não as altere.\n// Implemente apenas o método consultarBase na classe Questao4.\n// NÃO use classes de java.util.\n\nclass No {\n    int valor;\n    No proximo;\n\n    No(int valor) {\n        this.valor = valor;\n        this.proximo = null;\n    }\n}\n\nclass PilhaLista {\n    private No topo;\n    private int tamanho;\n\n    public PilhaLista() {\n        topo = null;\n        tamanho = 0;\n    }\n\n    public void push(int valor) {\n        No novo = new No(valor);\n        novo.proximo = topo;\n        topo = novo;\n        tamanho++;\n    }\n\n    public int pop() {\n        if (isEmpty()) {\n            throw new IllegalStateException("Erro! Pilha vazia.");\n        }\n        int valor = topo.valor;\n        topo = topo.proximo;\n        tamanho--;\n        return valor;\n    }\n\n    public int peek() {\n        if (isEmpty()) {\n            throw new IllegalStateException("Erro! Pilha vazia.");\n        }\n        return topo.valor;\n    }\n\n    public boolean isEmpty() {\n        return topo == null;\n    }\n\n    public int size() {\n        return tamanho;\n    }\n\n    // Mostra do topo para a base. Exemplo: topo [40, 30, 10] base\n    public String toString() {\n        StringBuilder sb = new StringBuilder("topo [");\n        No atual = topo;\n        while (atual != null) {\n            sb.append(atual.valor);\n            if (atual.proximo != null) sb.append(", ");\n            atual = atual.proximo;\n        }\n        return sb.append("] base").toString();\n    }\n}\n\nclass Questao4 {\n    public static int consultarBase(PilhaLista p) {\n        // TODO: use uma pilha auxiliar e push(), pop(), peek() e isEmpty().\n        //       Ao final, p deve estar exatamente como antes.\n        //       (apague a linha abaixo ao implementar)\n        throw new UnsupportedOperationException("consultarBase ainda não implementado");\n    }\n}\n\npublic class Main {\n    public static void main(String[] args) {\n        PilhaLista p = new PilhaLista();\n        p.push(10);                                   // 10 é a base\n        p.push(20);\n        p.push(30);\n        p.push(40);                                   // 40 é o topo\n\n        int base = Questao4.consultarBase(p);\n        System.out.println("Base: " + base);          // esperado: 10\n        System.out.println("Pilha: " + p);            // esperado: topo [40, 30, 20, 10] base\n    }\n}\n',
+            fornecido: [
+              "class No {\n    int valor;\n    No proximo;\n\n    No(int valor) {\n        this.valor = valor;\n        this.proximo = null;\n    }\n}",
+              'class PilhaLista {\n    private No topo;\n    private int tamanho;\n\n    public PilhaLista() {\n        topo = null;\n        tamanho = 0;\n    }\n\n    public void push(int valor) {\n        No novo = new No(valor);\n        novo.proximo = topo;\n        topo = novo;\n        tamanho++;\n    }\n\n    public int pop() {\n        if (isEmpty()) {\n            throw new IllegalStateException("Erro! Pilha vazia.");\n        }\n        int valor = topo.valor;\n        topo = topo.proximo;\n        tamanho--;\n        return valor;\n    }\n\n    public int peek() {\n        if (isEmpty()) {\n            throw new IllegalStateException("Erro! Pilha vazia.");\n        }\n        return topo.valor;\n    }\n\n    public boolean isEmpty() {\n        return topo == null;\n    }\n\n    public int size() {\n        return tamanho;\n    }\n\n    // Mostra do topo para a base. Exemplo: topo [40, 30, 10] base\n    public String toString() {\n        StringBuilder sb = new StringBuilder("topo [");\n        No atual = topo;\n        while (atual != null) {\n            sb.append(atual.valor);\n            if (atual.proximo != null) sb.append(", ");\n            atual = atual.proximo;\n        }\n        return sb.append("] base").toString();\n    }\n}',
+            ],
+            testesPublicos: [
+              {
+                id: "p1",
+                nome: "Exemplo: base 10",
+                codigo:
+                  'PilhaLista p = new PilhaLista();\nint[] pValores = {10, 20, 30, 40};\nfor (int x : pValores) p.push(x);\nint b = Questao4.consultarBase(p);\nSystem.out.println(b + " " + p);',
+                esperado: "10 topo [40, 30, 20, 10] base",
+              },
+              {
+                id: "p2",
+                nome: "Pilha com um elemento",
+                codigo:
+                  'PilhaLista p = new PilhaLista();\nint[] pValores = {7};\nfor (int x : pValores) p.push(x);\nint b = Questao4.consultarBase(p);\nSystem.out.println(b + " " + p);',
+                esperado: "7 topo [7] base",
+              },
+              {
+                id: "p3",
+                nome: "Pilha com dois elementos",
+                codigo:
+                  'PilhaLista p = new PilhaLista();\nint[] pValores = {1, 2};\nfor (int x : pValores) p.push(x);\nint b = Questao4.consultarBase(p);\nSystem.out.println(b + " " + p);',
+                esperado: "1 topo [2, 1] base",
+              },
+              {
+                id: "p4",
+                nome: "Pilha vazia lança IllegalStateException",
+                codigo:
+                  'PilhaLista p = new PilhaLista();\ntry {\n    Questao4.consultarBase(p);\n    System.out.println("sem excecao");\n} catch (IllegalStateException e) {\n    System.out.println("excecao");\n}',
+                esperado: "excecao",
+              },
+              {
+                id: "p5",
+                nome: "Valores repetidos",
+                codigo:
+                  'PilhaLista p = new PilhaLista();\nint[] pValores = {5, 5, 9};\nfor (int x : pValores) p.push(x);\nint b = Questao4.consultarBase(p);\nSystem.out.println(b + " " + p);',
+                esperado: "5 topo [9, 5, 5] base",
+              },
+              {
+                id: "p6",
+                nome: "Tamanho preservado e pilha utilizável",
+                codigo:
+                  'PilhaLista p = new PilhaLista();\nint[] pValores = {3, 4};\nfor (int x : pValores) p.push(x);\nint b = Questao4.consultarBase(p);\nSystem.out.println(b + " " + p.size() + " " + p.pop());',
+                esperado: "3 2 4",
+              },
+            ],
+          },
+          {
+            id: "q5",
+            numero: 5,
+            tipo: "pratica",
+            titulo: "Transferir elementos entre filas",
+            tema: "Filas · Exercício 14",
+            pontos: 2.5,
+            enunciado:
+              '\n<p>Considere duas <code>FilaLista<\/code>. Implemente um método <code>void transferir(FilaLista origem, FilaLista destino, int quantidade)<\/code> que retire do <strong>início<\/strong> da fila <code>origem<\/code> os primeiros <code>quantidade<\/code> elementos e os coloque, <strong>na mesma ordem<\/strong>, no <strong>final<\/strong> da fila <code>destino<\/code>.<\/p>\n<ul>\n  <li><strong>Antes da transferência<\/strong>, verifique se a origem possui elementos suficientes. Se <code>quantidade<\/code> for maior que <code>origem.size()<\/code>, ou negativa, lance <code>IllegalArgumentException<\/code> <strong>sem alterar nenhuma das filas<\/strong>.<\/li>\n  <li>Se <code>quantidade<\/code> for 0, nada muda.<\/li>\n  <li>As classes <code>No<\/code> e <code>FilaLista<\/code> já estão completas no editor. Não altere essas classes.<\/li>\n<\/ul>\n<table class="exemplos">\n  <tr><th><code>origem<\/code><\/th><th><code>destino<\/code><\/th><th>Chamada<\/th><th>Depois: <code>origem<\/code> | <code>destino<\/code><\/th><\/tr>\n  <tr><td><code>1, 2, 3, 4, 5<\/code><\/td><td><code>9<\/code><\/td><td><code>transferir(origem, destino, 3)<\/code><\/td><td><code>4, 5<\/code> | <code>9, 1, 2, 3<\/code><\/td><\/tr>\n  <tr><td><code>7, 8<\/code><\/td><td>(vazia)<\/td><td><code>transferir(origem, destino, 2)<\/code><\/td><td>(vazia) | <code>7, 8<\/code><\/td><\/tr>\n  <tr><td><code>1, 2<\/code><\/td><td><code>3<\/code><\/td><td><code>transferir(origem, destino, 5)<\/code><\/td><td>lança <code>IllegalArgumentException<\/code><\/td><\/tr>\n<\/table>\n<p class="nota">O método <code>toString()<\/code> da <code>FilaLista<\/code> mostra a fila do início para o fim, por exemplo <code>inicio [4, 5] fim<\/code>. Mantenha os nomes da classe <code>Questao5<\/code> e do método: a correção usa testes automáticos adicionais. Você pode criar métodos auxiliares.<\/p>',
+            template:
+              '// Questão 5 — Exercício 14 da lista: transferir(FilaLista origem, FilaLista destino, int quantidade)\n// As classes No e FilaLista abaixo estão COMPLETAS e prontas para uso: não as altere.\n// Implemente apenas o método transferir na classe Questao5.\n// NÃO use classes de java.util.\n\nclass No {\n    int valor;\n    No proximo;\n\n    No(int valor) {\n        this.valor = valor;\n        this.proximo = null;\n    }\n}\n\nclass FilaLista {\n    private No inicio;\n    private No fim;\n    private int tamanho;\n\n    public FilaLista() {\n        inicio = null;\n        fim = null;\n        tamanho = 0;\n    }\n\n    public void enqueue(int valor) {\n        No novo = new No(valor);\n        if (isEmpty()) {\n            inicio = novo;\n            fim = novo;\n        } else {\n            fim.proximo = novo;\n            fim = novo;\n        }\n        tamanho++;\n    }\n\n    public int dequeue() {\n        if (isEmpty()) {\n            throw new IllegalStateException("Erro! Fila vazia.");\n        }\n        int valor = inicio.valor;\n        inicio = inicio.proximo;\n        tamanho--;\n        if (inicio == null) {\n            fim = null;\n        }\n        return valor;\n    }\n\n    public int peek() {\n        if (isEmpty()) {\n            throw new IllegalStateException("Erro! Fila vazia.");\n        }\n        return inicio.valor;\n    }\n\n    public boolean isEmpty() {\n        return inicio == null;\n    }\n\n    public int size() {\n        return tamanho;\n    }\n\n    // Mostra do início para o fim. Exemplo: inicio [1, 2, 3] fim\n    public String toString() {\n        StringBuilder sb = new StringBuilder("inicio [");\n        No atual = inicio;\n        while (atual != null) {\n            sb.append(atual.valor);\n            if (atual.proximo != null) sb.append(", ");\n            atual = atual.proximo;\n        }\n        return sb.append("] fim").toString();\n    }\n}\n\nclass Questao5 {\n    public static void transferir(FilaLista origem, FilaLista destino, int quantidade) {\n        // TODO: verifique antes se origem tem elementos suficientes\n        //       (senão, IllegalArgumentException); depois transfira na mesma ordem.\n        //       (apague a linha abaixo ao implementar)\n        throw new UnsupportedOperationException("transferir ainda não implementado");\n    }\n}\n\npublic class Main {\n    public static void main(String[] args) {\n        FilaLista origem = new FilaLista();\n        for (int i = 1; i <= 5; i++) origem.enqueue(i);   // inicio [1, 2, 3, 4, 5] fim\n\n        FilaLista destino = new FilaLista();\n        destino.enqueue(9);\n\n        Questao5.transferir(origem, destino, 3);\n        System.out.println("origem  = " + origem);     // esperado: inicio [4, 5] fim\n        System.out.println("destino = " + destino);    // esperado: inicio [9, 1, 2, 3] fim\n    }\n}\n',
+            fornecido: [
+              "class No {\n    int valor;\n    No proximo;\n\n    No(int valor) {\n        this.valor = valor;\n        this.proximo = null;\n    }\n}",
+              'class FilaLista {\n    private No inicio;\n    private No fim;\n    private int tamanho;\n\n    public FilaLista() {\n        inicio = null;\n        fim = null;\n        tamanho = 0;\n    }\n\n    public void enqueue(int valor) {\n        No novo = new No(valor);\n        if (isEmpty()) {\n            inicio = novo;\n            fim = novo;\n        } else {\n            fim.proximo = novo;\n            fim = novo;\n        }\n        tamanho++;\n    }\n\n    public int dequeue() {\n        if (isEmpty()) {\n            throw new IllegalStateException("Erro! Fila vazia.");\n        }\n        int valor = inicio.valor;\n        inicio = inicio.proximo;\n        tamanho--;\n        if (inicio == null) {\n            fim = null;\n        }\n        return valor;\n    }\n\n    public int peek() {\n        if (isEmpty()) {\n            throw new IllegalStateException("Erro! Fila vazia.");\n        }\n        return inicio.valor;\n    }\n\n    public boolean isEmpty() {\n        return inicio == null;\n    }\n\n    public int size() {\n        return tamanho;\n    }\n\n    // Mostra do início para o fim. Exemplo: inicio [1, 2, 3] fim\n    public String toString() {\n        StringBuilder sb = new StringBuilder("inicio [");\n        No atual = inicio;\n        while (atual != null) {\n            sb.append(atual.valor);\n            if (atual.proximo != null) sb.append(", ");\n            atual = atual.proximo;\n        }\n        return sb.append("] fim").toString();\n    }\n}',
+            ],
+            testesPublicos: [
+              {
+                id: "p1",
+                nome: "Exemplo: transfere 3 elementos",
+                codigo:
+                  'FilaLista origem = new FilaLista();\nint[] origemValores = {1, 2, 3, 4, 5};\nfor (int x : origemValores) origem.enqueue(x);\nFilaLista destino = new FilaLista();\nint[] destinoValores = {9};\nfor (int x : destinoValores) destino.enqueue(x);\nQuestao5.transferir(origem, destino, 3);\nSystem.out.println(origem + " | " + destino);',
+                esperado: "inicio [4, 5] fim | inicio [9, 1, 2, 3] fim",
+              },
+              {
+                id: "p2",
+                nome: "Quantidade 0: nada muda",
+                codigo:
+                  'FilaLista origem = new FilaLista();\nint[] origemValores = {1, 2};\nfor (int x : origemValores) origem.enqueue(x);\nFilaLista destino = new FilaLista();\nint[] destinoValores = {3};\nfor (int x : destinoValores) destino.enqueue(x);\nQuestao5.transferir(origem, destino, 0);\nSystem.out.println(origem + " | " + destino);',
+                esperado: "inicio [1, 2] fim | inicio [3] fim",
+              },
+              {
+                id: "p3",
+                nome: "Transfere todos os elementos",
+                codigo:
+                  'FilaLista origem = new FilaLista();\nint[] origemValores = {7, 8};\nfor (int x : origemValores) origem.enqueue(x);\nFilaLista destino = new FilaLista();\nQuestao5.transferir(origem, destino, 2);\nSystem.out.println(origem + " | " + destino);',
+                esperado: "inicio [] fim | inicio [7, 8] fim",
+              },
+              {
+                id: "p4",
+                nome: "Quantidade maior que a origem: exceção e filas intactas",
+                codigo:
+                  'FilaLista origem = new FilaLista();\nint[] origemValores = {1, 2};\nfor (int x : origemValores) origem.enqueue(x);\nFilaLista destino = new FilaLista();\nint[] destinoValores = {3};\nfor (int x : destinoValores) destino.enqueue(x);\ntry {\n    Questao5.transferir(origem, destino, 5);\n    System.out.println("sem excecao");\n} catch (IllegalArgumentException e) {\n    System.out.println("excecao " + origem + " | " + destino);\n}',
+                esperado: "excecao inicio [1, 2] fim | inicio [3] fim",
+              },
+              {
+                id: "p5",
+                nome: "Destino vazio no início",
+                codigo:
+                  'FilaLista origem = new FilaLista();\nint[] origemValores = {7, 8, 9};\nfor (int x : origemValores) origem.enqueue(x);\nFilaLista destino = new FilaLista();\nQuestao5.transferir(origem, destino, 2);\nSystem.out.println(origem + " | " + destino);',
+                esperado: "inicio [9] fim | inicio [7, 8] fim",
+              },
+              {
+                id: "p6",
+                nome: "Tamanhos ao final",
+                codigo:
+                  'FilaLista origem = new FilaLista();\nint[] origemValores = {1, 2, 3, 4};\nfor (int x : origemValores) origem.enqueue(x);\nFilaLista destino = new FilaLista();\nint[] destinoValores = {5, 6};\nfor (int x : destinoValores) destino.enqueue(x);\nQuestao5.transferir(origem, destino, 1);\nSystem.out.println(origem.size() + " " + destino.size());',
+                esperado: "3 3",
+              },
+            ],
+          },
+        ],
+      };
     </script>
     <script>
       /* =====================================================================
@@ -7907,6 +8003,7 @@ Ao final, as duas filas originais devem continuar com <strong>os mesmos elemento
         professor: "Prof. Claudio Coutinho",
         turma: "CC3TA",
         idProva: "ED-2026.2-AV", // identificador desta prova
+        tipo: null, // definido na tela inicial (A, B ou C)
         prazo: "2026-10-23T17:50:00-03:00", // data e hora limite (horário de Belém, UTC-3)
         urlEnvio:
           "https://script.google.com/macros/s/AKfycbzFKk_IDb38zf52jbSZcawv3N0iJWQxQt02tHPKE4P4KIdBth6rMs3biDqasHORaEAcyA/exec", // URL do Google Apps Script (termina em /exec)
@@ -7916,8 +8013,22 @@ Ao final, as duas filas originais devem continuar com <strong>os mesmos elemento
       };
       /* ===================================================================== */
 
-      const Q = window.PROVA_QUESTOES;
-      const KEY = "cesupa-ed:" + CONFIG.idProva + ":sessao";
+      const TIPOS = Object.keys(window.PROVAS_TODAS);
+      const chaveDe = (t) =>
+        "cesupa-ed:" + CONFIG.idProva + ":sessao" + (t === "A" ? "" : ":" + t);
+      let Q = null,
+        KEY = null;
+      function usarTipo(t) {
+        CONFIG.tipo = t;
+        Q = window.PROVAS_TODAS[t];
+        KEY = chaveDe(t);
+        document.title = `Prova tipo ${t} · Estrutura de Dados · CESUPA`;
+      }
+      const normTipo = (v) =>
+        String(v || "")
+          .trim()
+          .toUpperCase()
+          .replace(/^TIPO\s*/, "");
       const KEY_ENTREGAS = "cesupa-ed:" + CONFIG.idProva + ":entregas";
       const VERSAO = "2.0";
       const PRAZO = Date.parse(CONFIG.prazo);
@@ -8093,6 +8204,74 @@ Ao final, as duas filas originais devem continuar com <strong>os mesmos elemento
       }
 
       /* ---------------- tela inicial ---------------- */
+      /* ---------------- tela de entrada: escolha do tipo ---------------- */
+      function renderLanding(msg) {
+        CONFIG.tipo = null;
+        Q = null;
+        KEY = null;
+        document.title = "Prova · Estrutura de Dados · CESUPA";
+        app.innerHTML = `
+  <div class="splash"><div class="card landing">
+    <div class="card-head">
+      <img class="logo" src="${UI.LOGO_FULL}" alt="CESUPA">
+      <div><div class="inst">${esc(CONFIG.curso)}</div>
+      <h1>${esc(CONFIG.disciplina)} — Avaliação</h1>
+      <div class="sub">${esc(CONFIG.professor)} · Turma ${esc(CONFIG.turma)}</div></div>
+    </div>
+    <form id="ftipo" class="landing-body" autocomplete="off">
+      <label for="tipo">Digite o <strong>tipo de prova</strong> informado pelo professor</label>
+      <div class="tipo-row">
+        <input id="tipo" name="tipo" maxlength="6" spellcheck="false" autocapitalize="characters" placeholder="?" aria-describedby="terr">
+        <button class="btn primary lg" type="submit">Abrir prova →</button>
+      </div>
+      <div class="ferr" id="terr">${esc(msg || "")}</div>
+      <p class="small">Tipos disponíveis: ${TIPOS.join(", ")}. Prazo final: ${prazoTxt()}.</p>
+    </form>
+  </div></div>`;
+        const inp = $("#tipo");
+        inp.focus();
+        inp.oninput = () => {
+          inp.value = inp.value.toUpperCase();
+          $("#terr").textContent = "";
+        };
+        $("#ftipo").onsubmit = (e) => {
+          e.preventDefault();
+          const t = normTipo(inp.value);
+          if (!TIPOS.includes(t)) {
+            $("#terr").textContent = inp.value.trim()
+              ? `Tipo "${inp.value.trim()}" não existe. Digite ${TIPOS.join(", ").replace(/, ([^,]*)$/, " ou $1")}.`
+              : "Digite o tipo de prova.";
+            inp.select();
+            return;
+          }
+          abrirTipo(t);
+        };
+      }
+      function abrirTipo(t) {
+        usarTipo(t);
+        const saved = UI.storage.get(KEY);
+        if (
+          saved &&
+          saved.prova === CONFIG.idProva &&
+          saved.aluno &&
+          (saved.tipo || "A") === t
+        ) {
+          if (saved.finalizada) {
+            S = saved;
+            S.envio = S.envio || {
+              status: ENVIO_ON ? "pendente" : "sem-servidor",
+              tentativas: 0,
+            };
+            renderDone();
+            if (ENVIO_ON && S.envio.status !== "ok") enviar();
+            return;
+          }
+          renderResume(saved);
+          return;
+        }
+        renderStart();
+      }
+
       function renderStart() {
         const total = Q.reduce((s, q) => s + q.pontos, 0);
         const encerrado = restante() <= 0;
@@ -8101,7 +8280,7 @@ Ao final, as duas filas originais devem continuar com <strong>os mesmos elemento
     <div class="card-head">
       <img class="logo" src="${UI.LOGO_FULL}" alt="CESUPA">
       <div><div class="inst">${esc(CONFIG.curso)}</div>
-      <h1>${esc(CONFIG.disciplina)} — Avaliação</h1>
+      <h1>${esc(CONFIG.disciplina)} — Avaliação <span class="tipo-badge">Tipo ${esc(CONFIG.tipo)}</span></h1>
       <div class="sub">${esc(CONFIG.professor)} · Turma ${esc(CONFIG.turma)}</div></div>
     </div>
     <div class="card-body">
@@ -8134,6 +8313,7 @@ Ao final, as duas filas originais devem continuar com <strong>os mesmos elemento
           <button class="btn primary lg" type="submit" style="width:100%;justify-content:center">Iniciar prova</button>
           <p class="small" style="margin-top:12px">Prazo final: <strong>${prazoTxt()}</strong> · <span id="falta">${encerrado ? "encerrado" : "faltam " + fmtClock(restante())}</span>.</p>
         </form>
+        <p class="small" style="margin-top:10px"><button class="link" id="btroca" type="button">← Trocar o tipo de prova</button></p>
         <div class="netline" id="net">${ENVIO_ON ? '<span class="dot wait"></span>Verificando conexão com o servidor de envio…' : '<span class="dot"></span>Envio online não configurado: ao final, entregue o arquivo de respostas.'}</div>
       </section>
     </div>
@@ -8146,6 +8326,7 @@ Ao final, as duas filas originais devem continuar com <strong>os mesmos elemento
               ? '<span class="dot ok"></span>Conectado ao servidor de envio.'
               : '<span class="dot bad"></span>Sem conexão com o servidor agora. Você pode fazer a prova normalmente, mas precisará de internet para enviar ao final.';
           });
+        $("#btroca").onclick = () => renderLanding();
         const f = $("#fstart");
         if (!f) return;
         const iv = setInterval(() => {
@@ -8217,6 +8398,7 @@ Ao final, as duas filas originais devem continuar com <strong>os mesmos elemento
         S = {
           versao: VERSAO,
           prova: CONFIG.idProva,
+          tipo: CONFIG.tipo,
           aluno,
           inicioMs: now,
           decorrido: 0,
@@ -8287,7 +8469,7 @@ Ao final, as duas filas originais devem continuar com <strong>os mesmos elemento
                 cls: "danger",
                 fn: () => {
                   UI.storage.del(KEY);
-                  renderStart();
+                  renderLanding();
                 },
               },
             ],
@@ -8299,7 +8481,7 @@ Ao final, as duas filas originais devem continuar com <strong>os mesmos elemento
       function renderExam() {
         app.innerHTML = `
   <header class="top">
-    <div class="brand"><div class="logobox"><img src="${UI.LOGO_COMPACT}" alt="CESUPA"></div><div><div class="t1">${esc(CONFIG.disciplina)}</div><div class="t2">Avaliação · Turma ${esc(S.aluno.turma)}</div></div></div>
+    <div class="brand"><div class="logobox"><img src="${UI.LOGO_COMPACT}" alt="CESUPA"></div><div><div class="t1">${esc(CONFIG.disciplina)}</div><div class="t2">Avaliação tipo ${esc(CONFIG.tipo)} · Turma ${esc(S.aluno.turma)}</div></div></div>
     <div class="who"><b>${esc(S.aluno.nome)}</b>Matrícula ${esc(S.aluno.matricula)}</div>
     <div class="timerbox"><span class="timer" id="timer" title="${semPrazo() ? "Tempo decorrido" : "Tempo restante até o prazo"}">--:--</span><small>${semPrazo() ? "SAE · sem limite de prazo" : "prazo " + prazoHora()}</small></div>
     <div class="saved" id="saved">Salvo</div>
@@ -8559,7 +8741,7 @@ Ao final, as duas filas originais devem continuar com <strong>os mesmos elemento
           '<div class="placeholder">Compilando e executando…</div>';
         setTimeout(() => {
           const res = JavaInterp.run(ed.value, {
-            maxSteps: 20000000,
+            maxSteps: 10000000,
             maxOutput: 60000,
           });
           UI.renderRun($("#console"), res, (n) => ed.gotoLine(n));
@@ -8833,6 +9015,7 @@ Ao final, as duas filas originais devem continuar com <strong>os mesmos elemento
           formato: "cesupa-ed-prova/1",
           versaoPlataforma: VERSAO,
           prova: CONFIG.idProva,
+          tipo: CONFIG.tipo,
           disciplina: CONFIG.disciplina,
           professor: CONFIG.professor,
           aluno: S.aluno,
@@ -8863,7 +9046,7 @@ Ao final, as duas filas originais devem continuar com <strong>os mesmos elemento
         return payload;
       }
       function nomeArquivo() {
-        return `ED_${UI.slug(CONFIG.idProva)}_${UI.slug(S.aluno.matricula)}_${UI.slug(S.aluno.nome)}.json`;
+        return `ED_${UI.slug(CONFIG.idProva)}_tipo${CONFIG.tipo}_${UI.slug(S.aluno.matricula)}_${UI.slug(S.aluno.nome)}.json`;
       }
       function finalizar(tipo) {
         if (S.finalizada) {
@@ -8984,7 +9167,7 @@ Ao final, as duas filas originais devem continuar com <strong>os mesmos elemento
         app.innerHTML = `
   <div class="splash"><div class="card done">
     <div class="card-head"><div class="bigicon" id="bigicon">✓</div><div>
-      <div class="inst">${esc(CONFIG.disciplina)} · ${esc(CONFIG.idProva)}</div>
+      <div class="inst">${esc(CONFIG.disciplina)} · ${esc(CONFIG.idProva)} · tipo ${esc(CONFIG.tipo)}</div>
       <h1 id="donetitle">Prova finalizada</h1>
       <div class="sub">${esc(S.aluno.nome)} · matrícula ${esc(S.aluno.matricula)} · finalizada em ${UI.fmtDataHora(Date.parse(E.fim))}${E.finalizacao === "prazo-esgotado" ? " (prazo esgotado)" : ""}</div>
       <div style="margin-top:6px">Selo de verificação: <span class="selo">${UI.codigoCurto(E.selo)}</span></div>
@@ -9018,7 +9201,7 @@ Ao final, as duas filas originais devem continuar com <strong>os mesmos elemento
                   clearTimeout(retryTimer);
                   UI.storage.del(KEY);
                   S = null;
-                  renderStart();
+                  renderLanding();
                 },
               },
             ],
@@ -9032,22 +9215,43 @@ Ao final, as duas filas originais devem continuar com <strong>os mesmos elemento
 
       /* ---------------- início ---------------- */
       (function boot() {
-        const saved = UI.storage.get(KEY);
-        if (saved && saved.prova === CONFIG.idProva && saved.aluno) {
-          if (saved.finalizada) {
-            S = saved;
-            S.envio = S.envio || {
-              status: ENVIO_ON ? "pendente" : "sem-servidor",
-              tentativas: 0,
-            };
-            renderDone();
-            if (ENVIO_ON && S.envio.status !== "ok") enviar();
-            return;
-          }
-          renderResume(saved);
+        // 1) prova já começada neste computador? volta direto para ela
+        const sessoes = TIPOS.map((t) => ({
+          t,
+          s: UI.storage.get(chaveDe(t)),
+        })).filter(
+          (x) =>
+            x.s &&
+            x.s.prova === CONFIG.idProva &&
+            x.s.aluno &&
+            (x.s.tipo || "A") === x.t,
+        );
+        const pri = (x) =>
+          !x.s.finalizada
+            ? 3
+            : x.s.envio && x.s.envio.status !== "ok" && ENVIO_ON
+              ? 2
+              : 1;
+        sessoes.sort(
+          (a, b) =>
+            pri(b) - pri(a) ||
+            (b.s.ultimoRelogio || 0) - (a.s.ultimoRelogio || 0),
+        );
+        if (sessoes.length) {
+          abrirTipo(sessoes[0].t);
           return;
         }
-        renderStart();
+        // 2) tipo indicado no endereço (ex.: prova.html#B ou ?tipo=B)
+        const pre = normTipo(
+          new URLSearchParams(location.search).get("tipo") ||
+            location.hash.slice(1),
+        );
+        if (TIPOS.includes(pre)) {
+          abrirTipo(pre);
+          return;
+        }
+        // 3) tela de escolha do tipo
+        renderLanding();
       })();
     </script>
   </body>
